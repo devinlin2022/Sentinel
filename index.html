@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_top">
+    <title>Sentinel Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/npm/slim-select@latest/dist/slimselect.css" rel="stylesheet" />
+    
+    <style>
+         #gemini-chat-open-button {
+         position: fixed;
+         bottom: 25px;
+         right: 25px;
+         width: 60px;
+         height: 60px;
+         background-color: #4285F4;
+         color: white;
+         border-radius: 50%;
+         border: none;
+         box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+         font-size: 24px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         cursor: pointer;
+         z-index: 9998;
+         transition: all 0.2s ease-in-out;
+         }
+         #gemini-chat-open-button:hover { transform: scale(1.1); }
+
+         #gemini-chat-container {
+         position: fixed;
+         bottom: 100px;
+         right: 25px;
+         width: 90vw;
+         max-width: 400px; 
+         height: 70vh;
+         max-height: 600px;
+         background-color: #ffffff;
+         border-radius: 16px;
+         box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+         display: none; 
+         flex-direction: column;
+         overflow: hidden;
+         z-index: 9999;
+         transition: all 0.3s ease-in-out; 
+         }
+         
+         #gemini-chat-container.visible { display: flex; }
+         #gemini-chat-container.expanded {
+         max-width: 800px;
+         max-height: 1200px;
+         width: 95vw;
+         height: 90vh;
+         }
+
+         .gemini-chat-header {
+         background-color: #1A73E8;
+         color: white;
+         padding: 1rem;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         }
+         .gemini-chat-header h1 { font-size: 1.25rem; font-weight: bold; }
+         #gemini-chat-close-button {
+         background: none;
+         border: none;
+         color: white;
+         font-size: 24px;
+         cursor: pointer;
+         margin-left: auto;
+         }
+
+         .gemini-chat-history {
+         flex-grow: 1;
+         overflow-y: auto;
+         padding: 1rem;
+         background-color: #f1f5f9; 
+         }
+         .gemini-chat-history .message-wrapper { display: flex; margin-bottom: 0.75rem; }
+         .gemini-chat-history .message-wrapper.user { justify-content: flex-end; }
+         .gemini-chat-history .message-bubble {
+         padding: 0.75rem 1rem;
+         border-radius: 18px;
+         max-width: 85%;
+         line-height: 1.5;
+         white-space: pre-wrap; 
+         word-wrap: break-word;
+         }
+         .gemini-chat-history .message-bubble.user {
+         background-color: #4285F4;
+         color: white;
+         border-bottom-right-radius: 4px;
+         }
+         .gemini-chat-history .message-bubble.agent {
+         background-color: #e2e8f0;
+         color: #1e293b;
+         border-bottom-left-radius: 4px;
+         }
+         
+         #gemini-loading-indicator {
+         display: none;
+         padding: 0.5rem;
+         text-align: center;
+         color: #64748b;
+         }
+
+         .gemini-chat-input-area {
+         display: flex;
+         padding: 1rem;
+         border-top: 1px solid #e2e8f0; 
+         background-color: #ffffff;
+         align-items: center; 
+         gap: 0.5rem;
+         }
+         #gemini-user-input {
+         flex-grow: 1;
+         border: 1px solid #cbd5e1; 
+         padding: 0.75rem;
+         border-radius: 9999px;
+         }
+         #gemini-user-input:focus {
+         outline: none;
+         border-color: #4285F4;
+         box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.4);
+         }
+         .chat-button {
+         border: none;
+         background-color: #1A73E8;
+         color: white;
+         border-radius: 50%;
+         width: 48px;
+         height: 48px;
+         cursor: pointer;
+         flex-shrink: 0;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-size: 1.2rem;
+         transition: background-color 0.2s;
+         }
+         .chat-button:hover { background-color: #1565C0; }
+         .chat-button i { font-size: 1.2rem; }
+
+         :root { --primary-color: #3b82f6; --bg-color: #f1f5f9; --card-bg: #ffffff; }
+         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); }
+         .nav-link { transition: all 0.2s ease-in-out; }
+         .nav-link.active { background-color: var(--primary-color); color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+         .nav-link:not(.active):hover { background-color: #e2e8f0; }
+         .card { background-color: var(--card-bg); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+         .table-container { max-height: 500px; overflow-y: auto; }
+         table thead { position: sticky; top: 0; z-index: 10; background-color: #f8fafc; }
+         
+         .ss-main .ss-multi-selected { padding-top: 2px; padding-bottom: 2px;}
+         .ss-main .ss-multi-selected .ss-values .ss-value { font-size: 0.8rem; background-color: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+         .ss-main .ss-content .ss-list .ss-option.ss-highlighted, .ss-main .ss-content .ss-list .ss-option:hover { background-color: #eff6ff; color: #1e40af; }
+         .ss-main .ss-content .ss-list .ss-option::before {
+             content: ''; display: inline-block; width: 16px; height: 16px; margin-right: 8px; border: 1px solid #9ca3af; border-radius: 3px; vertical-align: middle;
+         }
+         .ss-main .ss-content .ss-list .ss-option.ss-selected::before {
+             background-color: var(--primary-color); border-color: var(--primary-color);
+             background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+         }
+         .sortable-header { cursor: pointer; user-select: none; }
+         .sortable-header:hover { background-color: #f3f4f6; }
+         .sortable-header .sort-icon {
+             display: inline-block; width: 0.8em; height: 0.8em; margin-left: 6px; vertical-align: middle; opacity: 0.3; background-repeat: no-repeat; background-position: center;
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M11.354 10.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L8 12.793l2.646-2.647a.5.5 0 0 1 .708 0z'/%3E%3Cpath fill-rule='evenodd' d='M8 2a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-1 0v-10A.5.5 0 0 1 8 2z'/%3E%3C/svg%3E");
+         }
+         .sortable-header .sort-number { display: inline-block; font-size: 0.65rem; font-weight: bold; color: var(--primary-color); margin-left: 4px; vertical-align: middle; }
+         .sortable-header[data-sort="asc"] .sort-icon {
+             opacity: 1; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z'/%3E%3C/svg%3E");
+         }
+         .sortable-header[data-sort="desc"] .sort-icon {
+             opacity: 1; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 1a.5.5 0 0 1 .5.5v10.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z'/%3E%3C/svg%3E");
+         }
+         
+         .dl-btn { padding: 4px; border-radius: 6px; color: #64748b; background-color: transparent; transition: all 0.2s; }
+         .dl-btn:hover { background-color: #f1f5f9; color: #1e293b; }
+         .dl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+         .chart-clicked { border: 2px dashed var(--primary-color); border-radius: 0.75rem; }
+         
+         .message-bubble table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; max-width: 100%; overflow: auto; display: block; }
+         .message-bubble th, .message-bubble td { padding: 6px 10px; border: 1px solid #d1d5db; text-align: left; }
+         .message-bubble th { background-color: #f3f4f6; }
+         .message-bubble.agent th { background-color: #f1f5f9; color: #1e293b; }
+         .message-bubble.agent td { border-color: #e2e8f0; }
+
+    </style>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+
+<button id="gemini-chat-open-button" title="Sentinel AI Assistant">
+ <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px;">
+     <defs>
+         <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+           <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.2"/>
+         </filter>
+     </defs>
+     <g filter="url(#shadow)">
+         <rect x="4" y="4" width="16" height="12" rx="3" fill="#3B82F6"/> <path d="M10 16 L8 20 L12 16 Z" fill="#3B82F6"/> <polyline points="7 12 12 8 17 12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="17" cy="12" r="1" fill="#FFFFFF"/>
+     </g>
+ </svg>
+</button>
+
+<div id="gemini-chat-container">
+ <div class="gemini-chat-header">
+     <h1>Sentinel AI Assistant</h1>
+      <button id="gemini-expand-button" class="chat-button" title="Toggle Size" style="background-color: transparent; color: white;">
+         <i data-lucide="expand"></i>
+     </button>     
+     <button id="gemini-chat-close-button" title="Close Chat">&times;</button>
+ </div>
+ <div class="gemini-chat-history">
+     <div class="message-wrapper agent">
+         <div class="message-bubble agent">
+Hello! How can I assist you? I can answer the following questions:
+1. What are the shipment details for Container/BL
+2. What are the RG rate and xeneta rate for lane
+3. Predict the future Xeneta rates using linear regression for lane  
+         </div>
+     </div>
+ </div>
+ <div id="gemini-loading-indicator">Thinking...</div>
+ <div class="gemini-chat-input-area">
+     <input type="text" id="gemini-user-input" placeholder="">
+     <button id="gemini-send-button" class="chat-button" title="发送"><i class="fas fa-wand-magic-sparkles"></i></button>
+ </div>
+</div>
+
+
+<body class="flex h-screen text-gray-800">
+
+    <aside class="w-80 bg-white flex-shrink-0 p-6 flex flex-col">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="bg-blue-600 p-2 rounded-lg">
+                 <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   <path d="M12 2L6 7v10h12V7L12 2z"/>
+                   <path d="M8 21h8"/>
+                   <path d="M12 16l2-3H10l2 3z"/>
+                   <path d="M12 7v5"/>
+                   <path d="M6 7h12"/>
+                   <line x1="6" y1="21" x2="18" y2="21"/>
+                   <line x1="9" y1="16" x2="15" y2="16"/>
+                 </svg>
+            </div>
+            <h1 class="text-2xl font-bold">Sentinel</h1>
+        </div>
+        <nav id="sidebar-nav" class="space-y-3">
+            <a href="#status" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg font-semibold active"><i data-lucide="ship"></i> Ocean Shipment Status</a>
+            <a href="#saving-tracking" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-gray-600"><i data-lucide="dollar-sign"></i> Ocean Saving Tracking</a>
+            <a href="#saving-opportunity" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-gray-600"><i data-lucide="trending-up"></i> Predictive Saving Opportunity</a>
+        </nav>
+    </aside>
+
+    <main id="main-content" class="flex-1 p-8 overflow-y-auto">
+        <div id="status" class="dashboard-panel space-y-8">
+            <header class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-800">Ocean Shipment Status</h1>
+                <div id="date-display-status" class="text-right"></div>
+            </header>
+            <section id="filters-status" class="card p-4"></section>
+            <section>
+                <h2 class="text-2xl font-bold mb-4 border-b pb-2">Ocean Shipment Tracking Upon Departure</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
+                    <div id="etdStatusChart-card" class="card p-6"><div class="flex justify-between items-start"><h3 class="font-bold text-gray-700">Ocean Shipment Status by ETD Week</h3><span id="etdStatusTotal" class="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md"></span></div><div class="h-80 mt-4"><canvas id="etdStatusChart"></canvas></div></div>
+                    <div id="etdDelayChart-card" class="card p-6"><div class="flex justify-between items-start"><h3 class="font-bold text-gray-700">Shipment Delay by ETD Weeks</h3><span id="etdDelayTotal" class="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md"></span></div><div class="h-80 mt-4"><canvas id="etdDelayChart"></canvas></div></div>
+                </div>
+            </section>
+            <section>
+                <h2 class="text-2xl font-bold mb-4 border-b pb-2">Ocean Shipment Tracking Upon Arrival</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
+                    <div id="etaStatusChart-card" class="card p-6"><div class="flex justify-between items-start"><h3 class="font-bold text-gray-700">Ocean Shipment Status by ETA Week</h3><span id="etaStatusTotal" class="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md"></span></div><div class="h-80 mt-4"><canvas id="etaStatusChart"></canvas></div></div>
+                    <div id="etaDelayChart-card" class="card p-6"><div class="flex justify-between items-start"><h3 class="font-bold text-gray-700">Shipment Delay by ETA Weeks</h3><span id="etaDelayTotal" class="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md"></span></div><div class="h-80 mt-4"><canvas id="etaDelayChart"></canvas></div></div>
+                </div>
+            </section>
+            <section>
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <div>
+                        <h2 class="text-2xl font-bold">Shipment Details</h2>
+                        <span class="text-xs text-gray-500">Click headers to sort. Hold Shift+Click to add multiple sort columns.</span>
+                    </div>
+                    <button id="downloadDetails" class="dl-btn flex items-center gap-2" title="Export this table to CSV" disabled>
+                        <i data-lucide="download" class="w-4 h-4"></i> Export
+                    </button>
+                </div>
+                <div class="card p-6 mt-6">
+                    <div class="table-container">
+                        <table class="w-full text-sm text-left" id="detailsTable">
+                            <thead class="text-xs text-gray-700 uppercase">
+                                <tr>
+                                    <th class="px-4 py-3 sortable-header" data-key="laneId">Lane ID<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="regionHub">Region/Hub<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="container">Container #<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="polCity">POL City<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="podCity">POD City<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="status">Gnosis Milestone<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="vesselEtd">Vessel ETD<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="vesselAtd">Vessel ATD<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="vesselEta">Vessel ETA<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="vesselAta">Vessel ATA<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="rgTransitTime">RG Transit<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="actualOceanTransitTime">Actual Transit<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="etdWeek">ETD Week<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="etaWeek">ETA Week<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="departureDelayCategory">Departure Delay<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="arrivalDelayCategory">Arrival Delay<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h2 class="text-2xl font-bold mb-4 border-b pb-2">Actual Ocean Lead Time Tracking</h2>
+                <div class="card p-6 mt-6">
+                    <h3 class="font-bold mb-4 text-gray-700">Average Lead Time by Lane</h3>
+                    <div class="table-container">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase">
+                                <tr>
+                                    <th class="px-6 py-3">Lane ID</th>
+                                    <th class="px-6 py-3">POL City</th>
+                                    <th class="px-6 py-3">POD City</th>
+                                    <th class="px-6 py-3 text-right">Avg. Actual Transit (Days)</th>
+                                    <th class="px-6 py-3 text-right">Avg. RG Transit Time (Days)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transitTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="saving-tracking" class="dashboard-panel space-y-8 hidden">
+            <header class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-800">Ocean Saving Tracking</h1>
+                <div id="date-display-saving" class="text-right"></div>
+            </header>
+            <section id="filters-saving" class="card p-4"></section>
+            <section>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+                    <div id="volumeChart-card" class="card p-6"><h3 class="font-bold text-gray-700 mb-4">Actual Volume per Month (by ATD)</h3><div class="h-72"><canvas id="volumeChart"></canvas></div></div>
+                    <div id="spendChart-card" class="card p-6"><h3 class="font-bold text-gray-700 mb-4">Actual Spend per Month (by ATD)</h3><div class="h-72"><canvas id="spendChart"></canvas></div></div>
+                    <div id="savingChart-card" class="card p-6"><h3 class="font-bold text-gray-700 mb-4">Actual Saving Vs BUD Rate (by ATD)</h3><div class="h-72"><canvas id="savingChart"></canvas></div></div>
+                </div>
+            </section>
+            <section>
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <div>
+                        <h2 class="text-2xl font-bold">Actual Saving Details</h2>
+                        <span class="text-xs text-gray-500">Click headers to sort. Hold Shift+Click to add multiple sort columns.</span>
+                    </div>
+                    <button id="downloadSavingDetails" class="dl-btn flex items-center gap-2" title="Export this table to CSV" disabled>
+                        <i data-lucide="download" class="w-4 h-4"></i> Export
+                    </button>
+                </div>
+                <div class="card p-6 mt-6">
+                    <div class="table-container">
+                        <table class="w-full text-sm text-left" id="savingDetailsTable">
+                            <thead class="text-xs text-gray-700 uppercase">
+                                <tr>
+                                    <th class="px-4 py-3 sortable-header" data-key="regionHub">Region/Hub<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="laneId">Lane ID<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="polCity">POL City<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="podCity">POD City<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 sortable-header" data-key="atdMonth">ATD Month<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 text-right sortable-header" data-key="count">Container Count<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 text-right sortable-header" data-key="avgRg">Avg. RG Rate<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 text-right sortable-header" data-key="avgBud">Avg. BUD Rate<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                    <th class="px-4 py-3 text-right sortable-header" data-key="totalSaving">Total Saving<span class="sort-icon"></span><span class="sort-number"></span></th>
+                                </tr>
+                             </thead>
+                            <tbody id="savingDetailsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="saving-opportunity" class="dashboard-panel space-y-8 hidden">
+          <header class="flex justify-between items-center">
+              <h1 class="text-3xl font-bold text-gray-800">Predictive Ocean Saving Opportunity</h1>
+              <div id="date-display-predictive" class="text-right"></div>
+          </header>
+          <section id="filters-predictive" class="card p-4"></section>
+          <section id="predictive-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                  <h2 class="text-2xl font-bold mb-4 border-b pb-2">RG and Xeneta Rate per Lane</h2>
+                  <div id="predictive-charts-container-left" class="space-y-8 mt-6">
+                  </div>
+              </div>
+               <div>
+                  <h2 class="text-2xl font-bold mb-4 border-b pb-2">Future Prediction Potential Saving</h2>
+                  <div id="predictive-charts-container-right" class="space-y-8 mt-6">
+                  </div>
+              </div>
+          </section>
+        </div>
+        
+        <div id="loader" class="text-center py-20"><p class="text-lg font-semibold text-gray-600">Loading all shipment data...</p><p class="text-sm text-gray-500 mt-2">This may take a moment.</p></div>
+        <div id="error-message" class="hidden text-center py-20"><p class="text-lg font-semibold text-red-600">Could not load dashboard data.</p><p id="error-details" class="text-sm text-red-500 mt-2"></p></div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@latest/dist/slimselect.min.js"></script>
+
+    <script>
+        Chart.register(ChartDataLabels);
+        
+        let fullShipmentData = [];
+        let fullPredictiveData = [];
+        let predictiveSortedLaneIds = []; 
+        let charts = {};
+        let slimSelectInstances = {};
+        let currentFilteredShipments = [];
+        let currentSavingDetails = []; 
+        let tableSortState = {
+            detailsTable: { keys: [{key: 'vesselEtd', order: 'desc'}] }, 
+            savingDetailsTable: { keys: [{key: 'regionHub', order: 'asc'}, {key: 'atdMonth', order: 'asc'}] } 
+        };
+        let chartFilters = {
+            status: {}, 
+            saving: {}  
+        };
+        let chartClickData = {}; 
+
+        window.onload = () => {
+            lucide.createIcons();
+            const maxWaitTime = 15000; 
+            const checkInterval = 100;
+            let elapsedTime = 0;
+            const libraryCheck = setInterval(() => {
+                elapsedTime += checkInterval;
+                if (typeof SlimSelect !== 'undefined') {
+                    clearInterval(libraryCheck);
+                    console.log('SlimSelect library loaded successfully.');
+                    google.script.run
+                        .withSuccessHandler(handleSuccess)
+                        .withFailureHandler(handleFailure)
+                        .getCombinedData(); 
+                    return;
+                }
+                 if (elapsedTime >= maxWaitTime) {
+                    clearInterval(libraryCheck);
+                    handleFailure(new Error('A critical library (SlimSelect) could not be loaded. Please check network or CDN connection.'));
+                }
+            }, checkInterval);
+        };
+
+        function handleSuccess(dataString) {
+            document.getElementById('loader').classList.add('hidden');
+            try {
+                const payload = JSON.parse(dataString);
+                if (payload.error) throw new Error(payload.error);
+                
+                fullShipmentData = payload.shipments || [];
+                fullPredictiveData = payload.predictive.predictiveData || [];
+                predictiveSortedLaneIds = payload.predictive.sortedLaneIds || []; 
+                
+                const dateHtml = `<p class="font-semibold text-gray-700">${payload.dateInfo.date}</p><p class="text-sm text-gray-500">${payload.dateInfo.week}</p>`;
+                ['date-display-status', 'date-display-saving', 'date-display-predictive'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = dateHtml;
+                });
+                
+                initializeFilters(payload.filters);
+                initializePredictiveFilters(payload.predictive.filters);
+
+                setupTableSorting('detailsTable', 'detailsTableBody', () => currentFilteredShipments, renderDetailsTable);
+                setupTableSorting('savingDetailsTable', 'savingDetailsTableBody', () => currentSavingDetails, (sortedData) => {
+                    const tableBody = document.getElementById('savingDetailsTableBody');
+                     tableBody.innerHTML = sortedData.map(row => 
+                        `<tr class="bg-white border-b hover:bg-gray-50 text-xs">
+                            <td class="px-4 py-2">${row.regionHub||'N/A'}</td><td class="px-4 py-2">${row.laneId||'N/A'}</td>
+                            <td class="px-4 py-2">${row.polCity||'N/A'}</td><td class="px-4 py-2">${row.podCity||'N/A'}</td>
+                            <td class="px-4 py-2">${row.atdMonth||'N/A'}</td><td class="px-4 py-2 text-right">${row.count}</td>
+                            <td class="px-4 py-2 text-right">$${Math.round(row.avgRg).toLocaleString()}</td>
+                            <td class="px-4 py-2 text-right">$${Math.round(row.avgBud).toLocaleString()}</td>
+                            <td class="px-4 py-2 text-right font-semibold">$${Math.round(row.totalSaving).toLocaleString()}</td>
+                        </tr>`
+                    ).join('') || `<tr><td colspan="9" class="text-center py-8">No saving details for current selection.</td></tr>`;
+                });
+                
+                // NEW: Ensure Download button also filters out the "#N/A" Lane ID values
+                setupDownloadButton('downloadDetails', () => {
+                    return currentFilteredShipments.filter(s => {
+                        const l = String(s.laneId || '').trim().toUpperCase();
+                        return l && l !== 'N/A' && l !== '#N/A' && l !== '#NA' && l !== 'NULL';
+                    });
+                }, [ 
+                    {key: 'laneId', title: 'Lane ID'}, {key: 'regionHub', title: 'Region/Hub'}, {key: 'container', title: 'Container'},
+                    {key: 'polCity', title: 'POL City'}, {key: 'podCity', title: 'POD City'}, {key: 'status', title: 'Gnosis Milestone'},
+                    {key: 'vesselEtd', title: 'Vessel ETD'}, {key: 'vesselAtd', title: 'Vessel ATD'}, {key: 'vesselEta', title: 'Vessel ETA'},
+                    {key: 'vesselAta', title: 'Vessel ATA'}, {key: 'rgTransitTime', title: 'RG Transit'}, {key: 'actualOceanTransitTime', title: 'Actual Transit'},
+                    {key: 'etdWeek', title: 'ETD Week'}, {key: 'etaWeek', title: 'ETA Week'}, {key: 'departureDelayCategory', title: 'Departure Delay'},
+                    {key: 'arrivalDelayCategory', title: 'Arrival Delay'}
+                ]);
+                
+                setupDownloadButton('downloadSavingDetails', () => currentSavingDetails, [
+                    {key: 'regionHub', title: 'Region/Hub'}, {key: 'laneId', title: 'Lane ID'}, {key: 'polCity', title: 'POL City'},
+                    {key: 'podCity', title: 'POD City'}, {key: 'atdMonth', title: 'ATD Month'}, {key: 'count', title: 'Container Count'},
+                    {key: 'avgRg', title: 'Avg. RG Rate'}, {key: 'avgBud', title: 'Avg. BUD Rate'}, {key: 'totalSaving', title: 'Total Saving'}
+                ]);
+                
+                document.getElementById('status').classList.remove('hidden');
+                setupNavigation(); 
+                applyFilters();
+                
+            } catch (e) {
+                console.error('Error processing server response:', e);
+                handleFailure(e);
+            }
+        }
+
+        function handleFailure(error) {
+            document.getElementById('loader').classList.add('hidden');
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.classList.remove('hidden');
+            document.getElementById('error-details').textContent = error.message || String(error); 
+            console.error('Dashboard Error:', error); 
+        }
+
+        function initializeFilters(filters) {
+            const filterConfigs = {
+                status: [
+                    { id: 'laneIdFilter', placeholder: 'Filter by Lane ID', dataKey: 'laneId' },
+                    { id: 'regionHubFilter', placeholder: 'Filter by Region/Hub', dataKey: 'regionHub' }, { id: 'finalDestCountryFilter', placeholder: 'Filter by Final Dest Country', dataKey: 'finalDestCountry' },
+                    { id: 'polCityFilter', placeholder: 'Filter by POL City', dataKey: 'polCity' }, { id: 'podCityFilter', placeholder: 'Filter by POD City', dataKey: 'podCity' },
+                    { id: 'statusFilter', placeholder: 'Filter by Status', dataKey: 'status' }, { id: 'etdWeekFilter', placeholder: 'Filter by ETD Week', dataKey: 'etdWeek' },
+                    { id: 'etaWeekFilter', placeholder: 'Filter by ETA Week', dataKey: 'etaWeek' }, { id: 'depDelayFilter', placeholder: 'Filter by Departure Delay', dataKey: 'departureDelay' },
+                    { id: 'arrDelayFilter', placeholder: 'Filter by Arrival Delay', dataKey: 'arrivalDelay' }
+                ],
+                saving: [
+                    { id: 'regionHubFilter', placeholder: 'Filter by Region/Hub', dataKey: 'regionHub' }, { id: 'finalDestCountryFilter', placeholder: 'Filter by Final Dest Country', dataKey: 'finalDestCountry' },
+                    { id: 'polCityFilter', placeholder: 'Filter by POL City', dataKey: 'polCity' }, { id: 'podCityFilter', placeholder: 'Filter by POD City', dataKey: 'podCity' },
+                    { id: 'statusFilter', placeholder: 'Filter by Gnosis Milestone', dataKey: 'status'}, 
+                    { id: 'atdMonthFilter', placeholder: 'Filter by ATD Month', dataKey: 'atdMonth' } 
+                ]
+            };
+            
+            for (const [key, configs] of Object.entries(filterConfigs)) {
+                const container = document.getElementById(`filters-${key}`);
+                const prefix = key === 'status' ? '' : `${key}-`; 
+                if(container) container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">${configs.map(f => `<select id="${prefix}${f.id}" multiple></select>`).join('')}</div>`;
+            }
+
+            const allUniqueConfigs = [...new Map([...filterConfigs.status, ...filterConfigs.saving].map(item => [item.id, item])).values()];
+            allUniqueConfigs.forEach(config => {
+                const options = (filters[config.dataKey] || []).map(item => ({ text: String(item), value: String(item) }));
+                ['', 'saving-'].forEach(prefix => {
+                    const selectId = `${prefix}${config.id}`;
+                    if (document.getElementById(selectId)) {
+                        initSlimSelect(selectId, config.placeholder, options, () => syncAndApplyFilters(selectId));
+                    }
+                });
+            });
+        }
+
+        function initializePredictiveFilters(predictiveFilters) {
+            const filterConfigs = [
+                 { id: 'laneIdFilter', placeholder: 'Filter by Lane', dataKey: 'laneId' }, 
+                 { id: 'ffFilter', placeholder: 'Filter by FF', dataKey: 'ff' },
+                 { id: 'originCountryFilter', placeholder: 'Filter by Origin Country', dataKey: 'originCountry' },
+                 { id: 'destinationSubRegionFilter', placeholder: 'Filter by Dest. Hub', dataKey: 'destinationSubRegion' },
+                 { id: 'polFilter', placeholder: 'Filter by GNOSIS POL', dataKey: 'pol' }, 
+                 { id: 'podFilter', placeholder: 'Filter by GNOSIS POD', dataKey: 'pod' }, 
+                 { id: 'gnosisRouteFilter', placeholder: 'Filter by GNOSIS Route', dataKey: 'gnosisRoute' },
+                 { id: 'atdMonthFilter', placeholder: 'Filter by RG Month', dataKey: 'atdMonth' } 
+             ];
+             
+            const container = document.getElementById('filters-predictive');
+            if (!container) return; 
+
+            if (!predictiveFilters) {
+                console.error("Predictive filters object is missing or invalid from payload.");
+                container.innerHTML = `<p class="text-red-500">Could not load predictive filters. Data might be missing.</p>`;
+                return;
+            }
+
+            container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">${filterConfigs.map(f => `<select id="predictive-${f.id}" multiple></select>`).join('')}</div>`;
+            
+            filterConfigs.forEach(config => {
+                const options = (predictiveFilters[config.dataKey] || []).map(item => ({ text: String(item), value: String(item) }));
+                const selectId = `predictive-${config.id}`;
+                initSlimSelect(selectId, config.placeholder, options, applyFilters); 
+            });
+        }
+
+        function initSlimSelect(selectId, placeholder, options, afterChangeCallback) {
+             try {
+                 if (slimSelectInstances[selectId]) {
+                     slimSelectInstances[selectId].destroy();
+                 }
+                 slimSelectInstances[selectId] = new SlimSelect({
+                     select: `#${selectId}`, 
+                     settings: { placeholderText: placeholder, allowDeselect: true, closeOnSelect: false },
+                     data: options, 
+                     events: { afterChange: afterChangeCallback } 
+                 });
+             } catch (e) {
+                 console.error(`Failed to initialize SlimSelect for #${selectId}:`, e);
+                 const el = document.getElementById(selectId);
+                 if (el) el.outerHTML = `<p class="text-red-500 text-sm">Error loading filter: ${placeholder}</p>`;
+             }
+        }
+        
+        function syncAndApplyFilters(changedId) {
+            const prefixes = ['', 'saving-'];
+            const changedPrefix = prefixes.find(p => changedId.startsWith(p) && p.length > 0) || '';
+            const baseId = changedId.substring(changedPrefix.length);
+            const values = slimSelectInstances[changedId] ? slimSelectInstances[changedId].getSelected() : [];
+            
+            prefixes.forEach(prefix => {
+                const counterpartId = `${prefix}${baseId}`;
+                if (counterpartId !== changedId && slimSelectInstances[counterpartId]) {
+                     const counterpartEvents = slimSelectInstances[counterpartId].events;
+                    slimSelectInstances[counterpartId].events.afterChange = null; 
+                    slimSelectInstances[counterpartId].setSelected(values);
+                    slimSelectInstances[counterpartId].events = counterpartEvents; 
+                }
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const activeDashboardEl = document.querySelector('.dashboard-panel:not(.hidden)');
+            if (!activeDashboardEl) return; 
+            const activeDashboardId = activeDashboardEl.id;
+
+            const getSelected = (id, prefix = '') => { 
+                if (activeDashboardId === 'saving-tracking') prefix = 'saving-';
+                const fullId = `${prefix}${id}`;
+                return slimSelectInstances[fullId] ? slimSelectInstances[fullId].getSelected() : [];
+            }
+            
+            const filters = {
+                regionHub: getSelected('regionHubFilter'), finalDestCountry: getSelected('finalDestCountryFilter'),
+                polCity: getSelected('polCityFilter'), podCity: getSelected('podCityFilter'), status: getSelected('statusFilter'),
+                etdWeek: getSelected('etdWeekFilter'), etaWeek: getSelected('etaWeekFilter'),
+                departureDelayCategory: getSelected('depDelayFilter'), arrivalDelayCategory: getSelected('arrDelayFilter'),
+                laneId: getSelected('laneIdFilter'), 
+                atdMonth: getSelected('atdMonthFilter')
+            };
+            
+            currentFilteredShipments = fullShipmentData.filter(s => {
+                return ['regionHub', 'finalDestCountry', 'polCity', 'podCity', 'status', 'etdWeek', 'etaWeek', 'departureDelayCategory', 'arrivalDelayCategory', 'laneId', 'atdMonth'].every(key => 
+                    !filters[key] || filters[key].length === 0 || filters[key].includes(String(s[key]))
+                )
+            });
+            
+            const activeChartFiltersKey = activeDashboardId === 'status' ? 'status' : 'saving';
+            const activeChartFilters = chartFilters[activeChartFiltersKey];
+            if (activeChartFilters && Object.keys(activeChartFilters).length > 0) {
+                currentFilteredShipments = currentFilteredShipments.filter(s => {
+                    return Object.entries(activeChartFilters).every(([key, value]) => {
+                        return String(s[key]) === String(value);
+                    });
+                });
+            }
+
+            let filteredPredictiveData = [];
+            if (activeDashboardId === 'saving-opportunity') {
+                const getPredictiveSelected = (id) => { 
+                    const fullId = `predictive-${id}`;
+                    return slimSelectInstances[fullId] ? slimSelectInstances[fullId].getSelected() : [];
+                }
+                const predictiveFilters = {
+                    laneId: getPredictiveSelected('laneIdFilter'),
+                    ff: getPredictiveSelected('ffFilter'),
+                    originCountry: getPredictiveSelected('originCountryFilter'),
+                    destinationSubRegion: getPredictiveSelected('destinationSubRegionFilter'),
+                    pol: getPredictiveSelected('polFilter'),
+                    pod: getPredictiveSelected('podFilter'),
+                    gnosisRoute: getPredictiveSelected('gnosisRouteFilter'),
+                    rgMonth: getPredictiveSelected('atdMonthFilter') 
+                };
+                
+                filteredPredictiveData = fullPredictiveData.filter(p => {
+                    return ( !predictiveFilters.laneId.length || predictiveFilters.laneId.includes(String(p.laneId)) ) &&
+                           ( !predictiveFilters.ff.length || predictiveFilters.ff.includes(String(p.ff)) ) &&
+                           ( !predictiveFilters.originCountry.length || predictiveFilters.originCountry.includes(String(p.originCountry)) ) &&
+                           ( !predictiveFilters.destinationSubRegion.length || predictiveFilters.destinationSubRegion.includes(String(p.destinationSubRegion)) ) &&
+                           ( !predictiveFilters.pol.length || predictiveFilters.pol.includes(String(p.pol)) ) &&
+                           ( !predictiveFilters.pod.length || predictiveFilters.pod.includes(String(p.pod)) ) &&
+                           ( !predictiveFilters.gnosisRoute.length || predictiveFilters.gnosisRoute.includes(String(p.gnosisRoute)) ) &&
+                           ( !predictiveFilters.rgMonth.length || predictiveFilters.rgMonth.includes(String(p.rgMonth)) ); 
+                });
+            }
+            
+            renderAllVisuals(currentFilteredShipments, filteredPredictiveData);
+        }
+
+        function renderAllVisuals(shipmentData, predictiveData) {
+            renderStackedBarChart('etdStatusChart', 'etdStatusTotal', shipmentData, 'etdWeek', 'status');
+            renderStackedBarChart('etdDelayChart', 'etdDelayTotal', shipmentData, 'etdWeek', 'departureDelayCategory');
+            renderStackedBarChart('etaStatusChart', 'etaStatusTotal', shipmentData, 'etaWeek', 'status');
+            renderStackedBarChart('etaDelayChart', 'etaDelayTotal', shipmentData, 'etaWeek', 'arrivalDelayCategory');
+            
+            renderDetailsTable(shipmentData);
+            renderTransitTable(shipmentData);
+            
+            renderSavingCharts(shipmentData);
+            renderSavingDetailsTable(shipmentData);
+            
+            renderPredictiveCharts(predictiveData);
+
+            document.getElementById('downloadDetails').disabled = !shipmentData || shipmentData.length === 0;
+            document.getElementById('downloadSavingDetails').disabled = !currentSavingDetails || currentSavingDetails.length === 0; 
+        }
+
+        function renderStackedBarChart(canvasId, totalElId, data, weekField, categoryField) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const filteredData = data.filter(s => s[weekField] && s[categoryField]);
+            
+            document.getElementById(totalElId).textContent = `Total: ${filteredData.length}`;
+            
+            const grouped = filteredData.reduce((acc, item) => {
+                const week = item[weekField]; const category = item[categoryField];
+                if (!acc[week]) acc[week] = {};
+                acc[week][category] = (acc[week][category] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const weeks = Object.keys(grouped).sort((a, b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
+            const categories = [...new Set(filteredData.map(item => item[categoryField]))].sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
+            
+            const getColor = (category) => {
+                const catLower = String(category).toLowerCase();
+                if (catLower.includes('4.arrived')) return '#15803d'; 
+                if (catLower.includes('3.shipout')) return '#22c55e';
+                if (catLower.includes('three weeks delay')) return '#b91c1c';
+                if (catLower.includes('two weeks delay')) return '#ef4444';
+                if (catLower.includes('one week delay')) return '#facc15';
+                if (catLower.includes('on time')) return '#3b82f6';
+                
+                const defaultColors = ['#64748b', '#f97316', '#8b5cf6', '#06b6d4', '#ec4899'];
+                let hash = 0; 
+                for (let i = 0; i < catLower.length; i++) { hash = catLower.charCodeAt(i) + ((hash << 5) - hash); }
+                return defaultColors[Math.abs(hash) % defaultColors.length];
+            };
+            
+            const datasets = categories.map(cat => ({ 
+                label: cat, 
+                data: weeks.map(week => (grouped[week]?.[cat]) || 0), 
+                backgroundColor: getColor(cat), 
+                weekField: weekField, 
+                categoryField: categoryField 
+            }));
+            
+            if (charts[canvasId]) charts[canvasId].destroy();
+            charts[canvasId] = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: weeks, datasets }, 
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, 
+                    onClick: (e, elements) => handleChartClick(e, elements, charts[canvasId], 'status'),
+                    plugins: { 
+                        legend: { position: 'top' }, 
+                        datalabels: { 
+                            formatter: (v, ctx) => { 
+                                const total = ctx.chart.data.datasets.reduce((s, d) => s + d.data[ctx.dataIndex], 0); 
+                                return (ctx.datasetIndex === ctx.chart.data.datasets.length - 1 && total > 0) ? total : ''; 
+                            }, 
+                            color: '#374151', anchor: 'end', align: 'end', offset: -5 
+                        } 
+                    } 
+                } 
+            });
+        }
+        
+        function renderDetailsTable(data) {
+            const tableBody = document.getElementById('detailsTableBody');
+            
+            // NEW: Filter out #N/A Lane IDs before sorting and displaying
+            const validData = data.filter(s => {
+                const l = String(s.laneId || '').trim().toUpperCase();
+                return l && l !== 'N/A' && l !== '#N/A' && l !== '#NA' && l !== 'NULL';
+            });
+
+            const sortedData = sortData(validData, tableSortState.detailsTable.keys);
+            
+            tableBody.innerHTML = sortedData.map(s => 
+                `<tr class="bg-white border-b hover:bg-gray-50 text-xs">
+                    <td class="px-4 py-2">${s.laneId || 'N/A'}</td><td class="px-4 py-2">${s.regionHub || 'N/A'}</td>
+                    <td class="px-4 py-2">${s.container || 'N/A'}</td><td class="px-4 py-2">${s.polCity || 'N/A'}</td>
+                    <td class="px-4 py-2">${s.podCity || 'N/A'}</td><td class="px-4 py-2">${s.status || 'N/A'}</td>
+                    <td class="px-4 py-2">${s.vesselEtd}</td><td class="px-4 py-2">${s.vesselAtd}</td>
+                    <td class="px-4 py-2">${s.vesselEta}</td><td class="px-4 py-2">${s.vesselAta}</td>
+                    <td class="px-4 py-2 text-center">${s.rgTransitTime !== null ? s.rgTransitTime : 'N/A'}</td>
+                    <td class="px-4 py-2 text-center">${s.actualOceanTransitTime !== null ? s.actualOceanTransitTime : 'N/A'}</td>
+                    <td class="px-4 py-2">${s.etdWeek || 'N/A'}</td><td class="px-4 py-2">${s.etaWeek || 'N/A'}</td>
+                    <td class="px-4 py-2">${s.departureDelayCategory || 'N/A'}</td>
+                    <td class="px-4 py-2">${s.arrivalDelayCategory || 'N/A'}</td>
+                </tr>`
+            ).join('') || `<tr><td colspan="16" class="text-center py-8">No detailed shipment data for the current selection.</td></tr>`;
+        }
+        
+        function renderTransitTable(data) {
+            const tableBody = document.getElementById('transitTableBody');
+            
+            // NEW: Filter out #N/A Lane IDs
+            const validData = data.filter(s => {
+                const l = String(s.laneId || '').trim().toUpperCase();
+                return l && l !== 'N/A' && l !== '#N/A' && l !== '#NA' && l !== 'NULL' && s.actualOceanTransitTime !== null;
+            });
+            
+            const grouped = validData.reduce((acc, item) => {
+                if (!acc[item.laneId]) { 
+                    acc[item.laneId] = { polCity: item.polCity, podCity: item.podCity, totalTime: 0, totalRgTime: 0, count: 0, rgCount: 0 }; 
+                }
+                acc[item.laneId].totalTime += item.actualOceanTransitTime;
+                acc[item.laneId].count++;
+                if (item.rgTransitTime !== null) { 
+                    acc[item.laneId].totalRgTime += item.rgTransitTime;
+                    acc[item.laneId].rgCount++;
+                }
+                return acc;
+            }, {});
+            
+            const tableData = Object.entries(grouped).map(([laneId, d]) => ({
+                laneId, polCity: d.polCity, podCity: d.podCity,
+                avgTransit: Math.round(d.totalTime / d.count), 
+                avgRgTransit: d.rgCount > 0 ? (d.totalRgTime / d.rgCount).toFixed(1) : 'N/A' 
+            })).sort((a, b) => b.avgTransit - a.avgTransit);
+            
+            tableBody.innerHTML = tableData.map(row => 
+                `<tr class="bg-white border-b hover:bg-gray-50">
+                    <td class="px-6 py-4 font-medium">${row.laneId}</td><td class="px-6 py-4">${row.polCity}</td>
+                    <td class="px-6 py-4">${row.podCity}</td><td class="px-6 py-4 text-right font-semibold">${row.avgTransit}</td>
+                    <td class="px-6 py-4 text-right">${row.avgRgTransit}</td>
+                </tr>`
+            ).join('') || `<tr><td colspan="5" class="text-center py-8">No valid transit data for the current selection.</td></tr>`;
+        }
+
+        function renderSavingCharts(data) {
+            const dataByMonth = data.reduce((acc, s) => {
+                const month = s.atdMonth; if (!month) return acc; 
+                if (!acc[month]) acc[month] = { count: 0, totalSpend: 0, totalSaving: 0 };
+                acc[month].count++; 
+                acc[month].totalSpend += s.rgRate; 
+                acc[month].totalSaving += s.actualSaving; 
+                return acc;
+            }, {});
+            
+            const months = Object.keys(dataByMonth).sort((a,b)=> Number(a)-Number(b));
+            
+            const volumeData = months.map(m => dataByMonth[m].count);
+            const spendData = months.map(m => dataByMonth[m].totalSpend);
+            const savingData = months.map(m => dataByMonth[m].totalSaving);
+            
+            renderSimpleBarChart('volumeChart', 'Volume', months, volumeData, false, true, 'atdMonth');
+            renderSimpleBarChart('spendChart', 'Spend (USD)', months, spendData.map(Math.round), true, true, 'atdMonth');
+            renderSimpleBarChart('savingChart', 'Saving (USD)', months, savingData.map(Math.round), true, true, 'atdMonth');
+        }
+
+        function renderSimpleBarChart(canvasId, label, labels, data, isCurrency = false, showDataLabels = false, clickFilterKey = null) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if(charts[canvasId]) charts[canvasId].destroy();
+            
+            const datasets = [{ 
+                label, 
+                data, 
+                backgroundColor: '#3b82f6',
+                filterKey: clickFilterKey 
+            }];
+            
+            charts[canvasId] = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: labels.map(String), datasets: datasets }, 
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    onClick: clickFilterKey ? (e, elements) => handleChartClick(e, elements, charts[canvasId], 'saving') : undefined,
+                    plugins: { 
+                        legend: { display: false }, 
+                        datalabels: { 
+                            display: showDataLabels, 
+                            anchor: 'end', 
+                            align: 'end', 
+                            color: '#4b5563', 
+                            formatter: value => isCurrency ? `$${value.toLocaleString()}` : value.toLocaleString() 
+                        } 
+                    }, 
+                    scales: { 
+                        y: { 
+                             beginAtZero: true, 
+                            ticks: { 
+                                callback: value => isCurrency ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value) : value 
+                            } 
+                        } 
+                    } 
+                }
+            });
+        }
+
+        function renderSavingDetailsTable(data) {
+            const tableBody = document.getElementById('savingDetailsTableBody');
+            
+            const grouped = data.reduce((acc, s) => {
+                if (!s.atdMonth) return acc; 
+                const key = `${s.regionHub}|${s.laneId}|${s.polCity}|${s.podCity}|${s.atdMonth}`;
+                if (!acc[key]) acc[key] = { regionHub: s.regionHub, laneId: s.laneId, polCity: s.polCity, podCity: s.podCity, atdMonth: s.atdMonth, count: 0, totalRg: 0, totalBud: 0, totalSaving: 0 };
+                
+                acc[key].count++; 
+                acc[key].totalRg += s.rgRate; 
+                acc[key].totalBud += s.budRate; 
+                acc[key].totalSaving += s.actualSaving;
+                return acc;
+            }, {});
+            
+            const tableData = Object.values(grouped).map(d => ({ 
+                ...d, 
+                avgRg: d.count > 0 ? d.totalRg / d.count : 0, 
+                avgBud: d.count > 0 ? d.totalBud / d.count : 0 
+            }));
+            
+            currentSavingDetails = sortData(tableData, tableSortState.savingDetailsTable.keys);
+            
+            tableBody.innerHTML = currentSavingDetails.map(row => 
+                `<tr class="bg-white border-b hover:bg-gray-50 text-xs">
+                    <td class="px-4 py-2">${row.regionHub||'N/A'}</td>
+                    <td class="px-4 py-2">${row.laneId||'N/A'}</td>
+                    <td class="px-4 py-2">${row.polCity||'N/A'}</td>
+                    <td class="px-4 py-2">${row.podCity||'N/A'}</td>
+                    <td class="px-4 py-2">${row.atdMonth||'N/A'}</td>
+                    <td class="px-4 py-2 text-right">${row.count}</td>
+                    <td class="px-4 py-2 text-right">$${Math.round(row.avgRg).toLocaleString()}</td>
+                    <td class="px-4 py-2 text-right">$${Math.round(row.avgBud).toLocaleString()}</td>
+                    <td class="px-4 py-2 text-right font-semibold">$${Math.round(row.totalSaving).toLocaleString()}</td>
+                </tr>`
+            ).join('') || `<tr><td colspan="9" class="text-center py-8">No saving details for current selection.</td></tr>`; 
+        }
+
+        function renderPredictiveCharts(predictiveData) {
+            const containerLeft = document.getElementById('predictive-charts-container-left');
+            const containerRight = document.getElementById('predictive-charts-container-right');
+            if (!containerLeft || !containerRight) return; 
+            
+            containerLeft.innerHTML = '';
+            containerRight.innerHTML = '';
+            
+            const groupedByLane = predictiveData.reduce((acc, s) => {
+                if (s.laneId && s.rgMonth) { 
+                    if (!acc[s.laneId]) acc[s.laneId] = [];
+                    acc[s.laneId].push(s);
+                }
+                return acc;
+            }, {});
+            
+            if (Object.keys(groupedByLane).length === 0) {
+                const noDataHtml = '<div class="text-center text-gray-500 py-10">No predictive data available for the current filter selection.</div>';
+                containerLeft.innerHTML = noDataHtml;
+                containerRight.innerHTML = noDataHtml;
+                return;
+            }
+
+            for (const laneId of predictiveSortedLaneIds) {
+                if (!groupedByLane[laneId]) continue;
+                
+                const lanePredictiveData = groupedByLane[laneId].sort((a,b) => a.rgMonth - b.rgMonth);
+                if (lanePredictiveData.length === 0) continue; 
+
+                const historicalData = lanePredictiveData.filter(d => !d.projected);
+                const projectedData = lanePredictiveData.filter(d => d.projected);
+                const numProjections = projectedData.length;
+                
+                if (numProjections > 0 && historicalData.length > 0) {
+                    const lastHistPoint = historicalData[historicalData.length - 1];
+                    const lastOfBaf = lastHistPoint.ofBaf;
+                    const lastXenetaRate = lastHistPoint.xenetaRate;
+                    const lastXenetaMA = lastHistPoint.xenetaMovingAvg;
+
+                    projectedData.forEach(d => {
+                        d.ofBaf = lastOfBaf;
+                        d.xenetaRate = lastXenetaRate;
+                        d.xenetaMovingAvg = lastXenetaMA;
+                    });
+                }
+
+                const months = lanePredictiveData.map(d => d.rgMonth);
+                
+                const datasets = [
+                    { 
+                        label: 'Avg OF+BAF', 
+                        data: lanePredictiveData.map(d => ({ x: d.rgMonth, y: d.ofBaf, projected: d.projected })),
+                        backgroundColor: (ctx) => ctx.raw.projected ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.7)',
+                        order: 3 
+                    },
+                    { 
+                        label: 'Avg Xeneta Rate', 
+                        data: lanePredictiveData.map(d => ({ x: d.rgMonth, y: d.xenetaRate, projected: d.projected })),
+                        borderColor: '#16a34a', 
+                        backgroundColor: '#16a34a',
+                        type: 'line', fill: false, tension: 0.1, order: 1, 
+                        segment: { borderDash: ctx => ctx.p1.raw.projected ? [6, 6] : undefined } 
+                    },
+                    { 
+                        label: 'Xeneta Moving Avg.', 
+                        data: lanePredictiveData.map(d => ({ x: d.rgMonth, y: d.xenetaMovingAvg, projected: d.projected })),
+                        borderColor: '#facc15', 
+                        backgroundColor: '#facc15',
+                        type: 'line', fill: false, tension: 0.4, order: 2, 
+                        spanGaps: true, 
+                        segment: { borderDash: ctx => ctx.p1.raw.projected ? [6, 6] : undefined } 
+                    }
+                ];
+                
+                const lastHistoricalDataPoint = [...lanePredictiveData].filter(d => !d.projected).pop() || lanePredictiveData[0];
+                const annualVolumeText = lastHistoricalDataPoint.annualVolume ? ` (Annual Volume: ${lastHistoricalDataPoint.annualVolume.toLocaleString()})` : '';
+                const chartTitle = `${lastHistoricalDataPoint.laneId} (${lastHistoricalDataPoint.gnosisRoute})${annualVolumeText}`;
+                
+                const leftChartId = `predictive-left-${laneId.replace(/[^a-zA-Z0-9]/g, '')}`;
+                const leftChartCard = document.createElement('div');
+                leftChartCard.className = 'card p-6';
+                leftChartCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-gray-700 text-sm">${chartTitle}</h3>
+                        <button id="dl-left-${laneId}" class="dl-btn" title="Export chart data"><i data-lucide="download" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="h-80"><canvas id="${leftChartId}"></canvas></div>`;
+                containerLeft.appendChild(leftChartCard);
+                
+                new Chart(document.getElementById(leftChartId).getContext('2d'), {
+                    type: 'bar', 
+                    data: { labels: months.map(String), datasets: datasets }, 
+                    options: { 
+                        parsing: { xAxisKey: 'x', yAxisKey: 'y' }, 
+                        responsive: true, maintainAspectRatio: false, 
+                        plugins: { legend: { position: 'top' }, datalabels: { display: false } }, 
+                        scales: { 
+                            y: { beginAtZero: true, ticks: { callback: value => `$${Number(value).toLocaleString()}` } },
+                            x: { ticks: { autoSkip: true, maxRotation: 0, minRotation: 0 } } 
+                        } 
+                    }
+                });
+                
+                const projectedDataForSaving = lanePredictiveData.filter(d => d.projected);
+                
+                const savingsData = projectedDataForSaving.map(p => {
+                    const monthlyVolume = (lastHistoricalDataPoint.annualVolume || 0) / 12;
+                    const saving = (p.xenetaRate !== null && p.ofBaf !== null) 
+                                     ? monthlyVolume * (p.xenetaRate - p.ofBaf) 
+                                     : null; 
+                    return {
+                        month: p.rgMonth,
+                        saving: saving !== null && saving < 0 ? saving : null 
+                    };
+                }).filter(s => s.saving !== null);
+                
+                const savingMonths = savingsData.map(s => s.month);
+                const savingValues = savingsData.map(s => s.saving);
+
+                const rightChartId = `predictive-right-${laneId.replace(/[^a-zA-Z0-9]/g, '')}`;
+                const rightChartCard = document.createElement('div');
+                rightChartCard.className = 'card p-6';
+                rightChartCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-gray-700 text-sm">${chartTitle}</h3>
+                        <button id="dl-right-${laneId}" class="dl-btn" title="Export chart data"><i data-lucide="download" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="h-80"><canvas id="${rightChartId}"></canvas></div>`;
+                containerRight.appendChild(rightChartCard);
+
+                renderSimpleBarChart(rightChartId, 'Future Potential Saving', savingMonths.map(String), savingValues.map(Math.round), true, true);
+                
+                setupDownloadButton(`dl-left-${laneId}`, () => lanePredictiveData, [
+                    {key: 'laneId', title: 'Lane'}, {key: 'rgMonth', title: 'Month'}, {key: 'ofBaf', title: 'OF+BAF'},
+                    {key: 'xenetaRate', title: 'Xeneta Rate'}, {key: 'xenetaMovingAvg', title: 'Xeneta Moving Avg'}, {key: 'projected', title: 'Is Projected'}
+                ]);
+                
+                setupDownloadButton(`dl-right-${laneId}`, () => savingsData, [
+                    {key: 'month', title: 'Month'}, {key: 'saving', title: 'Potential Saving (USD)'}
+                ]);
+            }
+            lucide.createIcons();
+        }
+        
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault(); 
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.add('hidden'));
+                    
+                    const targetPanel = document.querySelector(link.getAttribute('href'));
+                    if (targetPanel) targetPanel.classList.remove('hidden');
+                    
+                    chartFilters.status = {};
+                    chartFilters.saving = {};
+                    clearChartHighlights(); 
+
+                    applyFilters();
+                });
+            });
+        }
+
+        (function() {
+          const openButton = document.getElementById('gemini-chat-open-button');
+          const closeButton = document.getElementById('gemini-chat-close-button');
+          const expandButton = document.getElementById('gemini-expand-button');
+          const container = document.getElementById('gemini-chat-container');
+          const historyDiv = container.querySelector('.gemini-chat-history');
+          const input = document.getElementById('gemini-user-input');
+          const sendButton = document.getElementById('gemini-send-button');
+          const askGeminiButton = document.getElementById('gemini-ask-gemini-button');
+          const loading = document.getElementById('gemini-loading-indicator');
+
+          let chatSessionId = null;
+          let chatUserId = null;
+
+          openButton.addEventListener('click', () => {
+            container.classList.add('visible');
+            openButton.style.display = 'none'; 
+            if (!chatUserId) { 
+              initializeChatSession();
+            }
+          });
+          
+          closeButton.addEventListener('click', () => {
+            container.classList.remove('visible');
+            openButton.style.display = 'flex'; 
+          });
+          
+          expandButton.addEventListener('click', () => {
+               container.classList.toggle('expanded');
+          });
+          
+          function initializeChatSession() {
+            google.script.run
+              .withSuccessHandler(id => { chatUserId = id; console.log("Chat user initialized:", id); })
+              .withFailureHandler(err => { console.error("Could not get user ID", err); chatUserId = "anonymous_user"; })
+              .getUserId();
+            chatSessionId = 'session-' + Date.now();
+          }
+          
+           function createTableFromJSON(data) {
+               if (!data || data.length === 0) return "Empty data.";
+               const headers = Object.keys(data[0]);
+               let tableHtml = '<table><thead><tr>';
+               headers.forEach(header => {
+                   tableHtml += `<th>${header}</th>`;
+               });
+               tableHtml += '</tr></thead><tbody>';
+               
+               data.forEach(row => {
+                   tableHtml += '<tr>';
+                   headers.forEach(header => {
+                       const value = row[header] !== null && row[header] !== undefined ? row[header] : '';
+                       tableHtml += `<td>${value}</td>`;
+                   });
+                   tableHtml += '</tr>';
+               });
+               tableHtml += '</tbody></table>';
+               return tableHtml;
+           }
+
+          function addMessageToUI(message, sender) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `message-wrapper ${sender}`;
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${sender}`;
+            
+            let isTable = false;
+            if (sender === 'agent') {
+              try {
+                const parsed = JSON.parse(message);
+                if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object') {
+                  bubble.innerHTML = createTableFromJSON(parsed);
+                  isTable = true;
+                }
+              } catch (e) {
+              }
+            }
+            
+            if (!isTable) {
+              bubble.textContent = message;
+            }
+
+            wrapper.appendChild(bubble);
+            historyDiv.appendChild(wrapper);
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+          }
+
+          function handleSendMessage(isAskGemini = false) {
+            let messageText = input.value.trim();
+            if (!messageText) return;
+
+            addMessageToUI(messageText, 'user');
+            input.value = '';
+            loading.style.display = 'block';
+            
+            if (sendButton) sendButton.disabled = true;
+            if (askGeminiButton) askGeminiButton.disabled = true;
+
+            if (isAskGemini) {
+               messageText = `ask gemini: ${messageText}`;
+            }
+
+            google.script.run
+              .withSuccessHandler(response => {
+                addMessageToUI(response, 'agent');
+                loading.style.display = 'none';
+                if (sendButton) sendButton.disabled = false;
+                if (askGeminiButton) askGeminiButton.disabled = false;
+              })
+              .withFailureHandler(error => {
+                addMessageToUI("Error, please retry。", 'agent');
+                console.error("Chat Error:", error);
+                loading.style.display = 'none';
+                if (sendButton) sendButton.disabled = false;
+                if (askGeminiButton) askGeminiButton.disabled = false;
+              })
+              .generateAgentResponse(messageText, chatSessionId);
+          }
+
+          if (sendButton) {
+            sendButton.addEventListener('click', () => handleSendMessage(false));
+          }
+          if (askGeminiButton) {
+            askGeminiButton.addEventListener('click', () => handleSendMessage(true));
+          }
+
+          input.addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+              handleSendMessage(false); 
+            }
+          });
+        })();
+
+        function handleChartClick(e, elements, chartInstance, dashboardKey) {
+             if (elements.length === 0) {
+                 if (Object.keys(chartFilters[dashboardKey]).length > 0) {
+                   chartFilters[dashboardKey] = {};
+                   chartClickData[dashboardKey] = null;
+                   clearChartHighlights();
+                   applyFilters();
+                 }
+                 return;
+             }
+
+             const element = elements[0];
+             const { datasetIndex, index } = element;
+             const dataset = chartInstance.data.datasets[datasetIndex];
+             const category = dataset.label;
+             const xValue = chartInstance.data.labels[index];
+             
+             const weekField = dataset.weekField;
+             const categoryField = dataset.categoryField;
+             const filterKey = dataset.filterKey;
+
+             const clickId = `${dashboardKey}-${chartInstance.canvas.id}-${datasetIndex}-${index}`;
+             
+             if (chartClickData[dashboardKey] === clickId) {
+                 chartFilters[dashboardKey] = {};
+                 chartClickData[dashboardKey] = null;
+                 clearChartHighlights();
+             } else {
+                 chartFilters[dashboardKey] = {};
+
+                 if (weekField && categoryField) { 
+                     chartFilters[dashboardKey][weekField] = xValue;
+                     chartFilters[dashboardKey][categoryField] = category;
+                 } else if (filterKey) { 
+                     chartFilters[dashboardKey][filterKey] = xValue;
+                 }
+                 chartClickData[dashboardKey] = clickId;
+                 clearChartHighlights();
+                 document.getElementById(`${chartInstance.canvas.id}-card`).classList.add('chart-clicked');
+             }
+             
+             applyFilters();
+        }
+        
+        function clearChartHighlights() {
+             document.querySelectorAll('.chart-clicked').forEach(card => {
+                 card.classList.remove('chart-clicked');
+             });
+        }
+
+        function setupTableSorting(tableId, tableBodyId, getDataFn, renderFn) {
+            const table = document.getElementById(tableId);
+            if (!table) return; 
+            
+            table.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', (e) => {
+                    const sortKey = header.dataset.key; 
+                    const sortState = tableSortState[tableId]; 
+                    const existingSortIndex = sortState.keys.findIndex(k => k.key === sortKey); 
+                    
+                    if (e.shiftKey) { 
+                        if (existingSortIndex > -1) {
+                            sortState.keys[existingSortIndex].order = sortState.keys[existingSortIndex].order === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            sortState.keys.push({ key: sortKey, order: 'asc' });
+                        }
+                    } else { 
+                        if (existingSortIndex === 0) { 
+                            const currentOrder = sortState.keys[existingSortIndex].order;
+                            if (currentOrder === 'asc') {
+                                sortState.keys = [{ key: sortKey, order: 'desc' }];
+                            } else {
+                                if (tableId === 'detailsTable') { 
+                                    sortState.keys = [{key: 'vesselEtd', order: 'desc'}];
+                                } else if (tableId === 'savingDetailsTable') { 
+                                    sortState.keys = [{key: 'regionHub', order: 'asc'}, {key: 'atdMonth', order: 'asc'}];
+                                } else { 
+                                    sortState.keys = [];
+                                }
+                            }
+                        } else {
+                            sortState.keys = [{ key: sortKey, order: 'asc' }];
+                        }
+                    }
+
+                    table.querySelectorAll('.sortable-header').forEach(th => {
+                        th.removeAttribute('data-sort'); 
+                        th.querySelector('.sort-number').textContent = ''; 
+                    });
+                    
+                    sortState.keys.forEach((k, index) => {
+                        const th = table.querySelector(`.sortable-header[data-key="${k.key}"]`);
+                        if (th) {
+                            th.setAttribute('data-sort', k.order); 
+                            if (sortState.keys.length > 1) {
+                                th.querySelector('.sort-number').textContent = (index + 1); 
+                            }
+                        }
+                    });
+
+                    const data = getDataFn();
+                    renderFn(data);
+                });
+            });
+        }
+
+        function sortData(data, sortKeys) {
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            return [...data].sort((a, b) => {
+                for (const { key, order } of sortKeys) {
+                    let valA = a[key]; 
+                    let valB = b[key]; 
+
+                    const isNumeric = (typeof valA === 'number' && typeof valB === 'number' && !isNaN(valA) && !isNaN(valB)) || 
+                                      (valA !== null && valB !== null && 
+                                       String(valA).match(/^-?\d*\.?\d+$/) && String(valB).match(/^-?\d*\.?\d+$/) && 
+                                       !isNaN(parseFloat(valA)) && !isNaN(parseFloat(valB)));
+                    
+                    const isDate = (typeof valA === 'string' && typeof valB === 'string') &&
+                                   dateRegex.test(valA) && dateRegex.test(valB);
+                    
+                    if (isNumeric) {
+                        valA = parseFloat(valA);
+                        valB = parseFloat(valB);
+                    } else if (isDate) {
+                        valA = new Date(valA);
+                        valB = new Date(valB);
+                    } else {
+                        valA = String(valA || '').toLowerCase();
+                        valB = String(valB || '').toLowerCase();
+                    }
+
+                    if (valA < valB) return order === 'asc' ? -1 : 1;
+                    if (valA > valB) return order === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+
+        function setupDownloadButton(buttonId, getDataFn, headers) {
+            const button = document.getElementById(buttonId);
+            if (!button) return; 
+
+            button.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                const data = getDataFn(); 
+                
+                if (button.disabled || !data || data.length === 0) return; 
+
+                const keys = headers.map(h => h.key);
+                const titles = headers.map(h => h.title);
+
+                button.disabled = true;
+                button.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+                lucide.createIcons(); 
+
+                google.script.run
+                    .withSuccessHandler(response => { 
+                        try {
+                            if (typeof response === 'string' && response.startsWith('{"error":')) {
+                                const errObj = JSON.parse(response);
+                                throw new Error(errObj.error);
+                            }
+                            if (typeof response === 'string' && response.startsWith('data:text/csv;base64,')) {
+                               const dataUri = response;
+                               const link = document.createElement('a');
+                               link.href = dataUri;
+                               link.download = `${buttonId.replace(/^dl-/,'')}_export.csv`;
+                               document.body.appendChild(link);
+                               link.click(); 
+                               document.body.removeChild(link);
+                            } else {
+                                throw new Error("Invalid response received from export function.");
+                            }
+                        } catch (e) {
+                            console.error("CSV Download client-side error:", e);
+                            handleFailure(new Error(`Download failed: ${e.message}`));
+                        } finally {
+                            button.disabled = false;
+                            button.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i>';
+                            lucide.createIcons();
+                        }
+                    })
+                    .withFailureHandler(err => { 
+                        handleFailure(err); 
+                        button.disabled = false;
+                        button.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i>';
+                        lucide.createIcons();
+                    })
+                    .exportToCsv(JSON.stringify(data), JSON.stringify(keys), JSON.stringify(titles));
+            });
+        }
+    </script>
+</body>
+</html>
