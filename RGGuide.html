@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colgate-Palmolive | Logistics Guide: Cost Models vs. Incoterms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+            /* Base font size increased for better readability */
+            font-size: 1.05rem; 
+        }
+        .brand-dark-blue { color: #0B4F6C; }
+        .brand-bright-blue { color: #01BAEF; }
+        .bg-brand-dark-blue { background-color: #0B4F6C; }
+        .bg-brand-bright-blue { background-color: #01BAEF; }
+        .border-brand-bright-blue { border-color: #01BAEF; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 450px;
+            max-height: 500px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #757575;
+            font-size: 2.2rem; 
+            flex-shrink: 0;
+            padding: 0 1rem;
+        }
+        .flow-arrow::after {
+            content: '→';
+        }
+         .responsibility-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+         }
+        .responsibility-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .dot {
+            height: 14px; 
+            width: 14px;  
+            background-color: #01BAEF;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        /* Custom styling for Scenario flow */
+        .scenario-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            min-height: 200px; 
+        }
+        .scenario-label {
+            font-size: 0.95rem; 
+            font-weight: 600;
+            margin-top: 0.5rem;
+            color: #0B4F6C;
+        }
+        .scenario-link {
+            font-size: 2.2rem; 
+            color: #01BAEF;
+            margin: 0.5rem 0;
+        }
+        .rg-col {
+            font-size: 0.8rem; 
+            font-weight: 700;
+            color: #9ca3af; 
+            margin-top: 4px;
+        }
+        .stat-value {
+            font-size: 1.7rem; 
+            font-weight: 700;
+            line-height: 1.2;
+            color: #0B4F6C;
+        }
+        .stat-label {
+            font-size: 0.95rem; 
+            color: #374151;
+            margin-top: 2px;
+        }
+        /* Part Header Styling */
+        .part-header {
+            background-color: #0B4F6C; 
+            color: white; 
+            padding: 1.5rem 0; 
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .part-header h1 {
+            font-size: 2.5rem; 
+            font-weight: 700;
+        }
+        .part-header p {
+            font-size: 1.2rem; 
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+        .section-header-part-one {
+            border-bottom: 2px solid #0B4F6C;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        /* Flowchart styling */
+        .process-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .process-step {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-weight: 600;
+        }
+        .process-arrow {
+            font-size: 1.7rem; 
+            color: #01BAEF;
+        }
+        .step-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-top: 4px solid #0B4F6C;
+            min-height: 100px;
+        }
+        /* Specific alignment and color fix for the flow chart in Section 14 */
+        .process-container-aligned {
+            display: flex; 
+            flex-direction: row; 
+            justify-content: space-between; 
+            align-items: flex-start;
+        }
+        .process-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 23%; /* Adjust width for 4 columns */
+        }
+        .process-column .process-arrow, .process-column .process-result {
+            margin-top: 0.5rem; 
+            margin-bottom: 0.5rem;
+        }
+        .process-result {
+            font-size: 0.95rem; 
+            color: #757575;
+            font-weight: 600;
+        }
+        .step-box-fixed {
+            padding: 1.1rem; 
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-top: 4px solid #0B4F6C;
+            text-align: center;
+            width: 100%;
+            min-height: 65px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Specific color correction for Global Logistics box (Step 3) */
+        #global-logistics-step {
+            background-color: #0B4F6C; 
+            color: white;
+        }
+        #global-logistics-step strong {
+            color: white;
+        }
+        #rate-effective-step {
+            border-top: 4px solid #10B981; /* Tailwind green-600 */
+        }
+        #rate-effective-step strong {
+            color: #10B981;
+        }
+        /* Interactive Card Styling */
+        .interactive-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.1);
+        }
+        .toc-part {
+            font-size: 1.25rem; 
+            font-weight: 700;
+            color: #0B4F6C;
+            margin-top: 1rem;
+        }
+        .toc-section {
+            font-size: 0.95rem; 
+            margin-left: 0.5rem;
+            margin-top: 0.25rem;
+            display: block;
+            color: #374151;
+        }
+        .toc-link {
+            transition: color 0.2s ease;
+            color: #01BAEF; /* Bright blue for links */
+        }
+        .toc-link:hover {
+            color: #0B4F6C; /* Dark blue on hover */
+        }
+        .toc-main {
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border: 2px solid #0B4F6C;
+        }
+        /* Back to Top Button Styling */
+        #back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #01BAEF;
+            color: white;
+            padding: 0.8rem 1.2rem; 
+            border-radius: 9999px; /* Fully rounded */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem; 
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        #back-to-top:hover {
+            background-color: #0B4F6C;
+            transform: scale(1.05);
+        }
+        /* TOC Specific Styling for Bullets and Indentation */
+        .toc-sub-section {
+            padding-left: 1.5rem;
+            margin-top: 0.25rem;
+            list-style: none; /* Remove default bullets */
+        }
+        .toc-sub-section a {
+            display: block;
+            color: #374151; /* Dark grey for secondary links */
+            font-size: 0.9rem;
+            padding: 2px 0;
+            transition: color 0.2s ease;
+            color: #01BAEF;
+        }
+        .toc-sub-section a:hover {
+            color: #0B4F6C; /* Bright blue on hover */
+        }
+        
+        /* Custom styles for Section 18 */
+        .solution-grid-item {
+            position: relative;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: #f0f9ff; /* Light blue base */
+            border-left: 4px solid #0a9396;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .solution-grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-bottom: 2rem;
+        }
+        .flow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 55px;
+            height: calc(100% - 48px);
+            width: 2px;
+            background-color: #0a9396;
+        }
+        .flow-icon {
+            z-index: 10;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .blocker-card {
+            background-color: #ffe8d6; /* Light orange/yellow for warning */
+            border: 1px solid #ffb700;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        /* Custom styles for new Section 14 (Bid Review) */
+        .bid-check-card {
+            padding: 1.25rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        .bid-check-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.1);
+        }
+        .bid-check-icon {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+    </style>
+</head>
+<body class="text-[#040F16]">
+
+    <header class="bg-brand-dark-blue text-white p-6 shadow-lg">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold">Routing Guide Playbook - APAC</h1>
+            <p class="text-lg mt-2 opacity-90">Essential training material for Import and Export Logistics Managers</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <!-- Table of Contents -->
+        <section id="toc-main" class="toc-main">
+            <h2 class="text-2xl font-bold brand-dark-blue mb-4 border-b pb-2">Table of Contents</h2>
+            <nav id="toc-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div class="flex flex-col">
+                    <a href="#part-i-header" class="toc-part toc-link text-brand-bright-blue hover:text-brand-dark-blue">Part I - Terminologies</a>
+                    <div class="toc-sub-section">
+                        <a href="#section-1" class="toc-link">1. Core Concepts: Cost Model (CM) and Incoterms® 2020</a>
+                        <a href="#section-2" class="toc-link">2. Surcharges and Free Time Management</a>
+                        <a href="#section-3" class="toc-link">3. Standard Global Freight Forwarding Agreement Summary</a>
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <a href="#part-ii" class="toc-part toc-link text-brand-bright-blue hover:text-brand-dark-blue">Part II - RG Details (Lane 100068)</a>
+                    <div class="toc-sub-section">
+                        <a href="#section-4" class="toc-link">4. Route, Volume, and Equipment</a>
+                        <a href="#section-5" class="toc-link">5. Geographical, Product, & Commercial Context</a>
+                        <a href="#section-6" class="toc-link">6. Origin and Ocean Core Charges</a>
+                        <a href="#section-7" class="toc-link">7. Destination Charges and Logistics</a>
+                        <a href="#section-8" class="toc-link">8. Annual Spending Summary</a>
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <a href="#part-iii" class="toc-part toc-link text-brand-bright-blue hover:text-brand-dark-blue">Part III - SOP and Ownership</a>
+                     <div class="toc-sub-section">
+                        <a href="#section-9" class="toc-link">9. Roles and Responsibilities</a>
+                        <a href="#section-10" class="toc-link">10. Escalation Process</a>
+                        <a href="#section-11" class="toc-link">11. SOP: New Freight Forwarder Onboarding</a>
+                        <a href="#section-12" class="toc-link">12. RG Management, Change, and Funding the Growth</a>
+                        <a href="#section-13" class="toc-link">13. Automated Routing Guide</a>
+                        <a href="#section-14" class="toc-link">14. Hub Guidance: Reviewing Ocean Freight Bid Responses</a>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <a href="#part-iv" class="toc-part toc-link text-brand-bright-blue hover:text-brand-dark-blue">Part IV - Spotting Opportunities</a>
+                     <div class="toc-sub-section">
+                        <a href="#section-15" class="toc-link">15. External Benchmarking and Market Insights</a>
+                        <a href="#section-16" class="toc-link">16. Container and Shipment Utilization</a>
+                        <a href="#section-17" class="toc-link">17. Free Time Optimization and Process Alignment</a>
+                        <a href="#section-18" class="toc-link">18. Port to Warehouse Leadtime Reduction</a>
+                    </div>
+                </div>
+            </nav>
+        </section>
+
+
+        <!-- PART I HEADER -->
+        <section id="part-i-header" class="mb-12">
+            <div class="container mx-auto text-center part-header">
+                <h1 class="text-3xl md:text-4xl font-bold">Part I - Terminologies</h1>
+                <p class="text-lg mt-2 opacity-90">Foundational concepts: Cost Models, Incoterms, and Core Surcharges.</p>
+            </div>
+        </section>
+
+        <!-- SECTION: COST MODEL AND INCOTERMS DEFINITIONS -->
+        <section id="section-1" class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold brand-dark-blue">1. Core Concepts: Cost Model (CM) and Incoterms® 2020</h2>
+                <p class="text-lg text-[#757575] max-w-3xl mx-auto mt-2">These two mechanisms define operational scope and financial liability for every shipment.</p>
+            </div>
+            
+            <section id="core-difference" class="mb-12">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold brand-dark-blue">At a Glance: Two Sides of a Shipment</h3>
+                    <p class="text-lg text-[#757575] max-w-3xl mx-auto mt-2">While both dictate financial responsibilities, they govern fundamentally different relationships. Understanding this distinction is key to managing operations and costs effectively.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-brand-dark-blue interactive-card">
+                        <h4 class="text-2xl font-bold brand-dark-blue mb-3">Cost Model (CM)</h4>
+                        <p class="text-xl mb-4">Defines the relationship between <strong class="font-semibold">Colgate Palmolive (The Company)</strong> and the <strong class="font-semibold">Freight Forwarder (FF)</strong>.</p>
+                        <div class="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+                            <span class="text-2xl font-semibold">CP Company</span>
+                            <span class="text-3xl mx-4 brand-dark-blue font-mono">↔</span>
+                            <span class="text-2xl font-semibold">Freight Forwarder</span>
+                        </div>
+                        <p class="mt-4 text-[#757575] text-lg"><strong>Purpose:</strong> To define the FF's scope of service and provide a benchmark for controlling freight spend.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-brand-bright-blue interactive-card">
+                        <h4 class="text-2xl font-bold brand-bright-blue mb-3">Incoterms® 2020</h4>
+                        <p class="text-xl mb-4">Defines the relationship between the <strong class="font-semibold">CP Shipper (Seller)</strong> and the <strong class="font-semibold">CP Consignee (Buyer)</strong>.</p>
+                         <div class="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+                            <span class="text-2xl font-semibold">CP Shipper</span>
+                            <span class="text-3xl mx-4 brand-bright-blue font-mono">↔</span>
+                            <span class="text-2xl font-semibold">CP Consignee</span>
+                        </div>
+                        <p class="mt-4 text-[#757575] text-lg"><strong>Purpose:</strong> To determine the precise point where costs and, critically, the <strong class="font-semibold">risk of loss/damage</strong>, transfer.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="cost-models" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold brand-dark-blue">Colgate-Palmolive Cost Models (CM)</h3>
+                    <p class="text-lg text-[#757575] max-w-3xl mx-auto mt-2">These internal models define the exact physical services the Freight Forwarder is paid to perform.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <div class="border rounded-lg p-4 flex flex-col items-center text-center bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-2">DD (Door to Door)</h5>
+                        <p class="text-3xl my-4">🏭 → 🚚 → 🚢 → 🚚 → 🏢</p>
+                        <p class="text-base text-[#757575] flex-grow">FF manages the <strong>ENTIRE</strong> journey, from origin pick-up to final destination delivery.</p>
+                    </div>
+                    
+                     <div class="border rounded-lg p-4 flex flex-col items-center text-center bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-2">DP (Door to Port)</h5>
+                        <p class="text-3xl my-4">🏭 → 🚚 → 🚢</p>
+                        <p class="text-base text-[#757575] flex-grow">FF manages <strong>origin pick-up</strong> and ocean freight. Consignee handles destination logistics.</p>
+                    </div>
+                    
+                     <div class="border rounded-lg p-4 flex flex-col items-center text-center bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-2">PD (Port to Door)</h5>
+                        <p class="text-3xl my-4">🚢 → 🚚 → 🏢</p>
+                        <p class="text-base text-[#757575] flex-grow">Shipper handles origin logistics. FF manages ocean freight and <strong>destination delivery</strong>.</p>
+                    </div>
+                    
+                     <div class="border rounded-lg p-4 flex flex-col items-center text-center bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-2">PP (Port to Port)</h5>
+                        <p class="text-3xl my-4">🚢</p>
+                        <p class="text-base text-[#757575] flex-grow">FF manages <strong>ONLY</strong> the ocean freight leg. Both Shipper and Consignee handle their local logistics.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="incoterm-models" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold brand-bright-blue">Incoterms® 2020: Detailed Service Scope</h3>
+                    <p class="text-lg text-[#757575] max-w-4xl mx-auto mt-2">These eleven internationally recognized terms define the allocation of responsibility, costs, and risk transfer between the Seller (Shipper) and Buyer (Consignee).</p>
+                </div>
+                <div id="incoterms-details" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">EXW (Ex Works)</h5>
+                        <p class="text-base text-[#757575]"><strong>Minimal Seller Obligation.</strong> Goods are made available at the seller's premises. Buyer bears all subsequent costs and risks from that point.</p>
+                    </div>
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">FCA (Free Carrier)</h5>
+                        <p class="text-base text-[#757575]">Seller delivers goods to the buyer's named carrier at a specified place. Risk and cost transfer immediately upon delivery to the carrier.</p>
+                    </div>
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">CPT (Carriage Paid To)</h5>
+                        <p class="text-base text-[#757575]">Seller pays for carriage to the named destination. <strong>Risk transfers upon delivery to the first carrier</strong> (separation of risk and cost points).</p>
+                    </div>
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">CIP (Carriage & Insurance Paid To)</h5>
+                        <p class="text-base text-[#757575]">Same as CPT, but Seller must also procure minimum insurance cover (Clause A) for the Buyer's risk of loss or damage.</p>
+                    </div>
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">DAP (Delivered at Place)</h5>
+                        <p class="text-base text-[#757575]">Seller delivers goods ready for unloading at the named destination. Seller bears all risks until the cargo is ready for unloading.</p>
+                    </div>
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">DPU (Delivered at Place Unloaded)</h5>
+                        <p class="text-base text-[#757575]">Seller delivers goods, <strong>unloaded</strong>, at the named destination. Seller bears all costs and risks, including associated unloading fees.</p>
+                    </div>
+                    <div class="border-t-4 border-gray-400 rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">DDP (Delivered Duty Paid)</h5>
+                        <p class="text-base text-[#757575]"><strong>Maximum Seller Obligation.</strong> Seller is responsible for delivering the goods, cleared for import, and all duties paid to the buyer's destination.</p>
+                    </div>
+                    <div class="border-t-4 border-brand-bright-blue rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">FAS (Free Alongside Ship) - Sea Only</h5>
+                        <p class="text-base text-[#757575]">Seller delivers goods alongside the vessel at the port of shipment. Risk and cost transfer at this point.</p>
+                    </div>
+                     <div class="border-t-4 border-brand-bright-blue rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">FOB (Free On Board) - Sea Only</h5>
+                        <p class="text-base text-[#757575]">Seller delivers goods <strong>on board</strong> the vessel at the port of shipment. Risk and cost transfer immediately when goods are aboard.</p>
+                    </div>
+                     <div class="border-t-4 border-brand-bright-blue rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">CFR (Cost and Freight) - Sea Only</h5>
+                        <p class="text-base text-[#757575]">Seller pays costs and freight to the named port of destination. <strong>Risk transfers when goods are on board the vessel</strong> (at origin).</p>
+                    </div>
+                     <div class="border-t-4 border-brand-bright-blue rounded-lg p-4 bg-gray-50 interactive-card">
+                        <h5 class="text-xl font-bold mb-1">CIF (Cost, Insurance & Freight) - Sea Only</h5>
+                        <p class="text-base text-[#757575]">Same as CFR, but Seller also procures minimum insurance cover (Clause C) against the Buyer's risk of loss or damage.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REMOVED: section id="incoterms-spectrum" (Incoterms® 2020: Seller's Obligation Spectrum) -->
+
+            <section id="summary-distinction" class="mb-12 bg-gray-100 rounded-lg shadow-inner p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-bold brand-dark-blue">Synthesis of Key Distinction</h3>
+                    <p class="text-lg text-[#757575] max-w-4xl mx-auto mt-2">Effective supply chain execution requires managers to recognize the independent function of these two critical instruments.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div class="p-4 border-r border-gray-300">
+                        <h4 class="text-xl font-bold brand-dark-blue">Cost Model (CM)</h4>
+                        <p class="mt-2 text-base">A <strong>Contractual Mechanism</strong> dictating the <strong>FF's Scope of Service</strong> and defining what the <strong>Company</strong> is invoiced for the transport leg.</p>
+                    </div>
+                    <div class="p-4 border-r border-gray-300">
+                        <h4 class="text-xl font-bold brand-bright-blue">Incoterm</h4>
+                        <p class="mt-2 text-base">A <strong>Commercial Regulation</strong> defining the legal point of <strong>Cost Allocation</strong> and <strong>Risk Transfer</strong> between the Seller and Buyer country teams.</p>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-xl font-bold text-red-600">The Overlap</h4>
+                        <p class="mt-2 text-base">A <strong>PP Cost Model</strong> on a <strong>CFR Incoterm</strong> means the Shipper pays the FF for the ocean freight, but must internally manage and pay for the local pre-carriage services.</p>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- SECTION: SURCHARGES AND FREE TIME MANAGEMENT -->
+        <section id="section-2" class="mb-12">
+             <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold brand-dark-blue">2. Surcharges and Free Time Management</h2>
+                <p class="text-lg text-[#757575] max-w-4xl mx-auto mt-2">Managing BAF fluctuations and minimizing detention/demurrage charges are primary cost control responsibilities.</p>
+            </div>
+
+            <section id="surcharges-timing" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8">
+                
+                <!-- BAF SECTION -->
+                <div class="mb-10 p-6 border rounded-lg border-brand-dark-blue/50">
+                    <h3 class="text-2xl font-bold brand-dark-blue mb-4 flex items-center"><span class="dot bg-brand-dark-blue"></span>Bunker Adjustment Factor (BAF)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xl font-semibold mb-2">Definition & Purpose:</p>
+                            <p class="text-lg text-[#757575]">BAF is a fluctuating ocean freight surcharge designed to compensate the carrier for changes in the cost of fuel (bunker fuel). It is adjusted mechanically on a quarterly basis.</p>
+                        </div>
+                        <div>
+                             <p class="text-xl font-semibold mb-2">CP's Calculation & Management:</p>
+                            <ul class="list-none space-y-2 text-base text-[#757575]">
+                                <li><span class="dot"></span>BAF is mechanically adjusted at the start of each quarter (Q1, Q2, Q3, Q4).</li>
+                                <li><span class="dot"></span>Adjustment is based on the relative change in the <strong>Bunker World Index (BWI)</strong>.</li>
+                                <li><span class="dot"></span>Calculation compares the average BWI rate of the past 3 months against the prior 3-month period.</li>
+                                <li><span class="dot"></span>Colgate Palmolive updates the BAF rate within the first two weeks of the month before the quarter applies (e.g., mid-September for Q4).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xl font-semibold brand-dark-blue mt-4">BAF Timeline Example (Q4):</p>
+                    <div class="p-4 bg-gray-50 rounded-lg text-base grid grid-cols-3 md:grid-cols-5 gap-2 text-center items-center">
+                        <div class="font-bold">April - June</div>
+                        <div class="flow-arrow"></div>
+                        <div class="font-bold">July - September</div>
+                        <div class="flow-arrow"></div>
+                        <div class="font-bold text-brand-bright-blue">October - December (Q4 Rate Effective)</div>
+                    </div>
+                    <p class="text-sm text-[#757575] mt-2 text-center">BAF rate for Q4 is calculated based on the % change of average BWI from (July-Sept) vs. (April-June).</p>
+                </div>
+
+                <!-- DETENTION & DEMURRAGE SECTION -->
+                 <div class="p-6 border rounded-lg border-brand-bright-blue/50">
+                    <h3 class="text-2xl font-bold brand-bright-blue mb-4 flex items-center"><span class="dot bg-brand-bright-blue"></span>Detention, Demurrage & Free Time</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <h4 class="font-bold text-xl text-red-600 mb-2">Demurrage (Terminal Time)</h4>
+                            <p class="text-lg text-[#757575] mb-2">Fees charged when <strong>import containers are full and under the control of the shipping line</strong> or terminal at the port/terminal beyond the agreed <strong>Demurrage Free Time</strong>.</p>
+                            <p class="text-base font-semibold text-red-600">Location: Inside the terminal/port.</p>
+                        </div>
+                         <div class="border-l-4 border-red-500 pl-4">
+                            <h4 class="font-bold text-xl text-red-600 mb-2">Detention (Trucking Time)</h4>
+                            <p class="text-lg text-[#757575] mb-2">Fees charged when the <strong>Consignee holds onto the carrier's container</strong> (empty or full) outside of the port, terminal, or depot beyond the agreed <strong>Detention Free Time</strong>.</p>
+                             <p class="text-base font-semibold text-red-600">Location: Outside the terminal (e.g., CP warehouse).</p>
+                        </div>
+                    </div>
+
+                    <p class="text-xl font-semibold brand-dark-blue mt-6">Lane ID 100068 Free Time (Laem Chabang to Manila):</p>
+                    <p class="text-base text-[#757575] mt-1 mb-4">Refer to the Routing Guide Columns <strong>Z (Origin Detention)</strong>, <strong>AA (Origin Wharf)</strong>, <strong>AB (Dest Wharf/Demurrage)</strong>, and <strong>AC (Dest Detention)</strong> for these free time parameters.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                        <!-- Origin Detention (RG Col Z) -->
+                        <div class="text-center bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm text-[#757575]">Origin Detention Free Time (RG Col Z)</p>
+                            <p class="text-2xl font-bold brand-dark-blue">6 Days</p>
+                        </div>
+                        <!-- Origin Wharf (RG Col AA) -->
+                        <div class="text-center bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm text-[#757575]">Origin Terminal Wharf Free Days (RG Col AA)</p>
+                            <p class="text-2xl font-bold brand-dark-blue">5 Days</p>
+                        </div>
+                        <!-- Destination Combined (RG Col AB & AC combined) -->
+                        <div class="text-center bg-gray-100 p-3 rounded-lg border-2 border-brand-bright-blue">
+                            <p class="text-sm text-[#757575]">Destination Free Time (Combined D&D) (RG Col AB + AC)</p>
+                            <p class="text-2xl font-bold brand-bright-blue">11 Days</p>
+                        </div>
+                    </div>
+                    <p class="text-base text-red-600 mt-4">Action: Consignee (CP Philippines) must coordinate closely with the FF to ensure timely pickup/return within these destination free times to avoid high fees.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- SECTION: FREIGHT FORWARDER CONTRACT SUMMARY -->
+        <section id="section-3" class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold brand-dark-blue">3. Standard Global Freight Forwarding Agreement Summary</h2>
+                <p class="text-lg text-[#757575] max-w-4xl mx-auto mt-2">The core contractual relationship dictates services, performance, and billing for the FF.</p>
+            </div>
+
+            <section id="ff-contract" class="mb-12 bg-gray-100 rounded-lg shadow-inner p-6 md:p-8">
+
+                <!-- Services and Requirements -->
+                <div id="section-3-1" class="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-brand-dark-blue">
+                    <h3 class="text-2xl font-bold brand-dark-blue mb-4">3.1. Freight Forwarder Services and Requirements</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xl font-semibold mb-2">Core Operational Services:</p>
+                            <ul class="list-none space-y-2 text-base text-[#757575]">
+                                <li><span class="dot bg-brand-dark-blue"></span>Providing Ocean Freight Services and ancillary ground services (as required by the CM).</li>
+                                <li><span class="dot bg-brand-dark-blue"></span>Managing export/import documentation and customs clearance services upon request.</li>
+                                <li><span class="dot bg-brand-dark-blue"></span>Acting as an independent contractor, arranging transportation by vessel carriers.</li>
+                                <li><span class="dot bg-brand-dark-blue"></span>Providing traditional freight forwarding services (booking, space management, transport management).</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="text-xl font-semibold mb-2">Key Compliance Requirements (Security/IT):</p>
+                            <ul class="list-none space-y-2 text-base text-[#757575]">
+                                <li><span class="dot bg-brand-dark-blue"></span>Maintain security protocols, including appropriate physical and cyber security measures.</li>
+                                <li><span class="dot bg-brand-dark-blue"></span>Safeguard all written, verbal, and electronic information provided by Colgate.</li>
+                                <li><span class="dot bg-brand-dark-blue"></span>Implement industry-standard cyber-security procedures to mitigate shipping information exposure.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Performance Indicators -->
+                <div id="section-3-2" class="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-brand-bright-blue">
+                    <h3 class="text-2xl font-bold brand-bright-blue mb-4">3.2. Transportation Service Levels (KPIs)</h3>
+                    <p class="text-lg text-[#757575] mb-4">The FF must perform Transportation Services across all lanes and Cost Models in accordance with the following minimum service level requirements:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-xl font-semibold brand-dark-blue">Core Reliability Targets (85% Gross Minimum)</p>
+                            <ul class="list-none space-y-2 text-base text-[#757575]">
+                                 <li><span class="dot"></span>Booking to Sailing Week: 85% On-time (Bookings requested sailing week vs. actual sailing week, plus 7 days buffer).</li>
+                                 <li><span class="dot"></span>On-Time Pickups: 85% On-time (Pick date requested vs. actual pick up date, plus 7 days buffer).</li>
+                                 <li><span class="dot"></span>Segment Adherence: 85% On-time (Pick-up to Origin Port, Port intra nodal, Port to Delivery, etc. against CM SLA).</li>
+                                 <li><span class="dot"></span>On-Time Deliveries: 85% On-time (Actual CM delivery date vs. SLA).</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                             <p class="text-xl font-semibold brand-dark-blue">Key Compliance & Reporting</p>
+                            <ul class="list-none space-y-2 text-base text-[#757575]">
+                                <li><span class="dot"></span>Booking Acceptance: 99% (Bookings requested and accepted per container).</li>
+                                <li><span class="dot"></span>Provide Monthly Volume Evolution against CP's 12-month forecast by Lane ID and equipment type (TEU).</li>
+                                <li><span class="dot"></span>Provide Snapshot Reporting of TOP 30 Import/Export lanes by volume and spend.</li>
+                                <li><span class="dot"></span>Provide exception reporting with root cause analysis and corrective actions for worst-performing lanes.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Terms and Billings -->
+                <div id="section-3-3" class="bg-white rounded-lg shadow-md p-6 mb-6 border-t-4 border-brand-dark-blue">
+                    <h3 class="text-2xl font-bold brand-dark-blue mb-4">3.3. Payment Terms and Billings</h3>
+                    <p class="text-lg text-[#757575]">The invoicing process is strictly governed by the contract's financial and commercial terms.</p>
+                     <ul class="list-none space-y-3 text-base text-[#757575] mt-4">
+                        <li><span class="dot bg-brand-dark-blue"></span><strong>Standard Payment Term:</strong> Net 60 days from the date of the invoice.</li>
+                        <li><span class="dot bg-brand-dark-blue"></span><strong>Invoice Validity:</strong> Invoices submitted after 90 days from the provision of the service are considered null and void.</li>
+                        <li><span class="dot bg-brand-dark-blue"></span><strong>Rate Alignment (RG):</strong> The CM Rate per Container (USD) found in the Routing Guide is the contracted price. FF must adhere to these rates.</li>
+                        <li><span class="dot bg-brand-dark-blue"></span><strong>Currency Payment:</strong> Charges are paid in <strong>Local Currency</strong> for local components (e.g., origin haulage) and <strong>USD</strong> for international components (Ocean Freight and BAF). The RG adjusts FX quarterly, ensuring local teams pay the current Local Currency equivalent.</li>
+                    </ul>
+                </div>
+
+                <!-- SCENARIO: Lane ID 100068 Application (Enhanced Infographic) -->
+                <div id="section-3-4" class="bg-gray-50 rounded-lg shadow-inner p-6 mt-8">
+                    <h3 class="text-2xl font-bold brand-dark-blue mb-4">3.4. Scenario: Lane ID 100068 (CFR/PP) Contract Application in Practice - FF: Dimerco</h3>
+                    <p class="text-lg text-[#757575] mb-6">This scenario uses the Laem Chabang (TH) to Manila (PH) lane to demonstrate the direct application of contract terms (Services, KPIs, and Rates) on a PP Cost Model shipment.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+                        
+                        <!-- Step 1: Origin Action & Service -->
+                        <div class="scenario-step bg-white border-b-4 border-brand-dark-blue shadow-md interactive-card">
+                            <h4 class="text-2xl font-bold brand-dark-blue mb-2">THAILAND (Shipper)</h4>
+                            <p class="text-base text-left mt-2 flex-grow"><strong>Service:</strong> Provides accurate Export Documents to FF. FF is only responsible for the vessel booking.</p>
+                        </div>
+                        
+                        <div class="lg:col-span-1 hidden lg:flex scenario-link">⚓</div>
+                        
+                        <!-- Step 2: FF Performance KPI -->
+                        <div class="scenario-step bg-white border-b-4 border-brand-bright-blue shadow-md interactive-card">
+                            <h4 class="text-2xl font-bold brand-bright-blue mb-2">KPI (Ocean Leg)</h4>
+                            <p class="text-base text-left mt-2 flex-grow"><strong>FF Obligation:</strong> FF must achieve the 85% on-time sailing metric (KPI B). Risk transfers to CP Philippines upon vessel loading (CFR).</p>
+                        </div>
+
+                        <div class="lg:col-span-1 hidden lg:flex scenario-link">💸</div>
+
+                        <!-- Step 3: Payment Rules -->
+                        <div class="scenario-step bg-white border-b-4 border-brand-dark-blue shadow-md interactive-card">
+                             <h4 class="text-2xl font-bold brand-dark-blue mb-2">PHILIPPINES (DESTINATION)</h4>
+                            <p class="text-base text-left mt-2 flex-grow"><strong>Payment:</strong> CP Thailand pays USD Ocean Freight (RG rate). CP Philippines pays Local Currency destination fees.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-4 bg-gray-200 rounded-lg">
+                        <p class="font-bold text-xl brand-dark-blue">Financial Compliance Checklist:</p>
+                        <ul class="list-none space-y-1 text-base text-[#757575] mt-2">
+                            <li><span class="dot bg-brand-dark-blue"></span>Verify FF invoice for Ocean Freight and BAF matches the Routing Guide <strong>USD CM Rate</strong>.</li>
+                            <li><span class="dot bg-brand-dark-blue"></span>Ensure local destination charges are invoiced in <strong>PHP</strong> and follow the RG FX rate.</li>
+                            <li><span class="dot bg-brand-dark-blue"></span>All FF invoices must be processed for payment within <strong>Net 60 Days</strong>; reject if submitted past the 90-day validity window.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </section>
+        </section>
+        
+        <!-- ============================================== -->
+        <!-- START OF PART II - ROUTING GUIDE CONTENT -->
+        <!-- ============================================== -->
+        <section id="part-ii" class="mb-12">
+            <div class="container mx-auto text-center part-header">
+                <h1 class="text-3xl md:text-4xl font-bold">Part II - RG Details</h1>
+                <p class="text-lg mt-2 opacity-90">A Section-by-Section Breakdown of the Routing Guide (RG) Columns (A to FI)</p>
+            </div>
+
+            <!-- 4. ROUTE, VOLUME, AND EQUIPMENT (Columns A-G) -->
+            <section id="section-4" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>4. Route, Volume, and Equipment (Columns A-G)</h2>
+                <p class="text-lg text-[#757575] mb-6">This first section establishes the fundamental identifiers and the forecasted commercial volume for the lane.</p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center">
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="stat-value">100068</p>
+                        <p class="stat-label">Lane ID</p>
+                        <p class="rg-col">(Col B)</p>
+                    </div>
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="stat-value">Dimerco</p>
+                        <p class="stat-label">Awarded FF</p>
+                        <p class="rg-col">(Col A, C)</p>
+                    </div>
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="stat-value">Laem Chabang → Manila</p>
+                        <p class="stat-label">Door Pairing</p>
+                        <p class="rg-col">(Col D)</p>
+                    </div>
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="stat-value">1,913</p>
+                        <p class="stat-label">Annual Volume (Container)</p>
+                        <p class="rg-col">(Col E)</p>
+                    </div>
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="stat-value">3,826</p>
+                        <p class="stat-label">BUDGET TEU</p>
+                        <p class="rg-col">(Col F)</p>
+                    </div>
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="stat-value">40HC</p>
+                        <p class="stat-label">Equipment Type</p>
+                        <p class="rg-col">(Col G)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. GEOGRAPHICAL, PRODUCT, & COMMERCIAL CONTEXT (Columns H-AG) -->
+            <section id="section-5" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-bright-blue">
+                <h2 class="text-2xl font-bold brand-bright-blue mb-6 flex items-center"><span class="dot bg-brand-bright-blue"></span>5. Geographical, Product, & Commercial Context (Columns H-AG)</h2>
+                <p class="text-lg text-[#757575] mb-6">These columns map the shipment's physical route, the cargo type, and the core commercial rules governing the transaction.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Mapping & Product -->
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-2">Geographic & Product Mapping</h3>
+                        <p class="text-base"><strong class="font-semibold">Shipper/Consignee (O, P):</strong> CP THAILAND → CP PHILIPPINES</p>
+                        <p class="text-base mt-1"><strong class="font-semibold">Ports (T, Y):</strong> LAEM CHABANG (TH) → MANILA (PH)</p>
+                        <p class="text-base mt-1"><strong class="font-semibold">Cargo (H, K):</strong> General Cargo (Non-Hazardous, BU: ASIA)</p>
+                    </div>
+                    
+                    <!-- Contract Rules -->
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-2">Contractual Rules & Dates</h3>
+                        <p class="text-base"><strong class="font-semibold">INCOTERM (AD):</strong> <span class="text-brand-bright-blue">CFR</span> (Cost and Freight)</p>
+                        <p class="text-base mt-1"><strong class="font-semibold">Cost Model (AH):</strong> <span class="text-brand-dark-blue">PP</span> (Port to Port)</p>
+                        <p class="text-base mt-1"><strong class="font-semibold">Validity (AE-AF):</strong> Effective 7/1/2025 → Expires 6/30/2026</p>
+                    </div>
+                    
+                    <!-- REMOVED: Free Time & Benchmarks Box -->
+                </div>
+            </section>
+
+            <!-- 6. ORIGIN AND OCEAN CORE CHARGES (Columns AH-BG) -->
+            <section id="section-6" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>6. Origin and Ocean Core Charges (Columns AH-BG)</h2>
+                <p class="text-lg text-[#757575] mb-6">This area details the fixed and variable costs associated with getting the container onto the vessel (paid by Shipper).</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Origin Local Charges (Paid in Local Currency: THB) -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-dark-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-2">Origin Charges (THAILAND - THB)</h3>
+                        <p class="text-sm text-[#757575] mb-2">All charges below are paid in THB (Local Currency) by CP Thailand.</p>
+                        <ul class="list-none space-y-1 text-base text-[#374151]">
+                            <li><strong>Inland Haulage (Col AM):</strong> 0.00 THB (Managed internally due to PP CM)</li>
+                            <li><strong>Doc Fee (Col AP):</strong> 1,672.00 THB </li>
+                            <li><strong>SOLAS Fee (Col AS):</strong> 0.00 THB </li>
+                            <li><strong>Origin Port Charge (Col AV):</strong> 1,338.00 THB </li>
+                            <li><strong>Terminal Handling (Col AY):</strong> 4,582.00 THB </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Ocean Core Freight (Paid in USD) -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-bright-blue lg:col-span-2 interactive-card">
+                        <h3 class="text-xl font-bold brand-bright-blue mb-2">Ocean Freight and Surcharges (USD)</h3>
+                        <p class="text-sm text-[#757575] mb-4">The core transport cost and mandatory fuel adjustment. Paid in USD by CP Thailand (Shipper).</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">Ocean Freight Rate (BD)</p>
+                                <p class="text-2xl font-bold text-green-600">$466.00</p>
+                                <p class="text-xs text-gray-700">USD - Core Freight</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">BAF (Fuel Surcharge) (BG)</p>
+                                <p class="text-2xl font-bold text-red-600">$0.00</p>
+                                <p class="text-xs text-gray-700">USD - Quarterly Adjusted</p>
+                            </div>
+                             <div class="bg-white p-3 rounded-lg shadow-sm border-2 border-brand-bright-blue">
+                                <p class="text-xs text-gray-500">Total Ocean Cost (BD + BG)</p>
+                                <p class="text-2xl font-bold brand-bright-blue">$466.00</p>
+                                <p class="text-xs text-gray-700">USD (Freight + BAF)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. DESTINATION CHARGES AND LOGISTICS (Columns BH-BT) -->
+            <section id="section-7" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-bright-blue">
+                <h2 class="text-2xl font-bold brand-bright-blue mb-6 flex items-center"><span class="dot bg-brand-bright-blue"></span>7. Destination Charges and Logistics (Columns BH-BT)</h2>
+                <p class="text-lg text-[#757575] mb-6">These destination charges and services are the responsibility of the Consignee (CP Philippines) and are paid in the local currency (PHP).</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Philippines Local Charges (Paid in Local Currency: PHP) -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-red-400 interactive-card">
+                        <h3 class="text-xl font-bold text-red-600 mb-2">Destination Charges (PHILIPPINES - PHP) </h3>
+                        <p class="text-sm text-[#757575] mb-2">These local charges are paid in PHP (Local Currency) by CP Philippines.</p>
+                        <ul class="list-none space-y-1 text-base text-[#374151]">
+                            <li><strong>Port Charge (Col BI):</strong> 0.00 PHP</li>
+                            <li><strong>Import Doc Fee (Col BL):</strong> 3,456.00 PHP</li>
+                            <li><strong>Terminal Handling (Col BP):</strong> 14,977.00 PHP</li>
+                            <li><strong>Import Inland Haulage (Col BS):</strong> 0.00 PHP (Managed internally due to PP CM)</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Destination Inland & Summary -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-green-600 interactive-card">
+                        <h3 class="text-xl font-bold text-green-700 mb-2">Destination Haulage & FF Scope</h3>
+                        <p class="text-base text-[#757575]">Haulage is excluded from the FF service due to the <strong>PP Cost Model</strong>.</p>
+                        <ul class="list-none space-y-1 text-base text-[#374151] mt-3">
+                            <li><strong>Destination Inland Mode (Col BU):</strong> Truck (Managed by CP Philippines)</li>
+                            <li><strong>Port of Discharge UNLOCODE (Col BN):</strong> PHMNL (Manila)</li>
+                            <li><strong>D2D Haulage Value (Col BT):</strong> $0.00 USD (Placeholder for D2D benchmark)</li>
+                        </ul>
+                        <p class="text-base mt-3 text-red-600 font-semibold">Action: Consignee must manage and pay a local provider for the delivery from PHMNL to the final customer location.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REMOVED: section id="section-8" (8. OPERATIONAL AND TIMING PARAMETERS) -->
+
+            <!-- 8. ANNUAL SPENDING SUMMARY (Columns EF-ES) -->
+            <section id="section-8" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>8. Annual Spending Summary (Columns EF-ES)</h2>
+                <p class="text-lg text-[#757575] mb-6">This section provides the full breakdown of the projected annual spend on the lane, calculated using the <strong>Annual Volume (Col E)</strong> and the respective rates.</p>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Total CM Spend -->
+                    <div class="p-3 bg-brand-dark-blue text-white rounded-lg shadow-lg text-center interactive-card">
+                        <p class="rg-col">(Col EM)</p>
+                        <p class="stat-value text-white">$1,954,911.00</p>
+                        <p class="stat-label text-gray-200">Total CM Annual Spend</p>
+                    </div>
+                    
+                    <!-- Origin Spend -->
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="rg-col">(Col EJ)</p>
+                        <p class="stat-value">$1,114,888.00</p>
+                        <p class="stat-label">Annual Origin Local Spend</p>
+                    </div>
+                    
+                    <!-- Ocean Spend -->
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="rg-col">(Col EL)</p>
+                        <p class="stat-value">$891,458.00</p>
+                        <p class="stat-label">Annual Ocean Freight Spend</p>
+                    </div>
+                    
+                    <!-- BAF Spend -->
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="rg-col">(Col EK)</p>
+                        <p class="stat-value text-red-600">$0.00</p>
+                        <p class="stat-label">Annual BAF Spend (Variable)</p>
+                    </div>
+                    
+                    <!-- Destination Spend -->
+                    <div class="p-3 bg-gray-50 rounded-lg border interactive-card">
+                        <p class="rg-col">(Col EN)</p>
+                        <p class="stat-value">$176,143.00</p>
+                        <p class="stat-label">Annual Destination Local Spend</p>
+                    </div>
+                    
+                    <!-- D2D Benchmark Spend -->
+                    <div class="p-3 bg-gray-100 rounded-lg border lg:col-span-2 interactive-card">
+                         <p class="rg-col">(Col EQ)</p>
+                        <p class="stat-value text-green-700">$3,738,510.00</p>
+                        <p class="stat-label">Annual D2D Benchmark Spend (Comparison)</p>
+                    </div>
+                </div>
+                <p class="text-base text-red-600 mt-4">Note: The Total CM Annual Spend ($1,954,911.00) is the contracted cost to the FF (CM Rate $1,022.00 USD) multiplied by the Annual Volume (1,913 containers).</p>
+            </section>
+
+            <!-- Example End -->
+            <section id="example" class="mb-12">
+                <div class="flex flex-col md:flex-row items-center justify-center p-6 bg-brand-bright-blue/10 rounded-lg shadow-inner">
+                    <p class="text-xl font-bold brand-dark-blue">Key Takeaway for Managers (Lane 100068):</p>
+                    <p class="text-xl md:text-2xl mx-4 brand-dark-blue font-mono hidden md:block">|</p>
+                    <p class="text-lg mt-2 md:mt-0 text-[#757575] text-center">Since the CM is PP, CP Thailand (Shipper) pays the FF for the <strong>Ocean leg only</strong>, but both CP Thailand and CP Philippines must locally source and pay for their <strong>Inland Haulage</strong>.</p>
+                </div>
+            </section>
+
+        </main>
+        
+        <!-- ============================================== -->
+        <!-- START OF PART III - OWNING YOUR ROUTING GUIDE -->
+        <!-- ============================================== -->
+        <section id="part-iii" class="container mx-auto p-4 md:p-8">
+            
+            <div class="container mx-auto text-center part-header">
+                <h1 class="text-3xl md:text-4xl font-bold">Part III - SOP and Ownership</h1>
+                <p class="text-lg mt-2 opacity-90">Establishing clear roles, change management, and financial governance for the RG.</p>
+            </div>
+
+            <!-- SECTION 9: ROLES AND RESPONSIBILITIES -->
+            <section id="section-9" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>9. Roles and Responsibilities: Shipper vs. Destination (SOP Timing)</h2>
+                <p class="text-lg text-[#757575] mb-6">The Destination team bears the primary responsibility for the Routing Guide's ownership and accuracy, while the Shipper team focuses on operational adherence and cost control.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- DESTINATION (OWNER) -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-brand-bright-blue shadow-inner interactive-card">
+                        <h3 class="text-xl font-bold brand-bright-blue mb-3">Destination (Importer / Buyer) - RG OWNER</h3>
+                        <p class="text-base text-[#757575] mb-4">The destination market owns the lane data and is responsible for initiating and managing change.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><strong class="text-brand-bright-blue">RG Ownership:</strong> Holds sole responsibility for the accuracy and maintenance of the Routing Guide data.</li>
+                            <li><strong class="text-brand-bright-blue">New FF Onboarding:</strong> Conducts and manages the entire operational setup for new Freight Forwarders using the Import Operational SOP Checklist.</li>
+                            <li><strong class="text-brand-bright-blue">Change Requests:</strong> Initiates and manages all change requests via the APAC Request Log File (see <a href="#section-12" class="text-blue-600 hover:underline">Section 12</a>).</li>
+                            <li><strong class="text-brand-bright-blue">Escalation & Approval:</strong> Reviews and provides the final sign-off on all Spot Rates and Mode Changes (e.g., Ocean to Air) requested by the Origin.</li>
+                            <li><strong class="text-brand-bright-blue">Volume Forecasting:</strong> Must update and submit Annual Volume for the following year’s global bidding, using the Division's Q4 analysis.</li>
+                            <li><strong class="text-brand-bright-blue">Compliance Note:</strong> Volume fluctuations from the RG can lead to payment of SPOT rates or lost space allocation.</li>
+                        </ul>
+                    </div>
+
+                    <!-- ORIGIN (OPERATOR) -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-brand-dark-blue shadow-inner interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Origin (Shipper / Seller) - RG OPERATOR</h3>
+                         <p class="text-base text-[#757575] mb-4">The shipper's role is execution, adherence, and immediate reporting of deviations from the RG.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><strong class="text-brand-dark-blue">Operational Adherence:</strong> Must exclusively follow the rates, FFs, and Cost Models documented in the RG.</li>
+                            <li><strong class="text-brand-dark-blue">Rate Compliance:</strong> Ensures the FF invoices align with the contracted RG CM Rate and local charges.</li>
+                            <li><strong class="text-brand-dark-blue">Escalation Point:</strong> Reports any operational issues (e.g., service failure, booking problems) to the Destination Owner.</li>
+                            <li><strong class="text-brand-dark-blue">Spot Rate Initiation:</strong> Submits requests for Spot rates or Ocean-to-Air changes to the Destination Owner for required approval.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-bold brand-dark-blue mt-6 mb-3">Routing Guide Publication & Validation Timeline</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-base text-[#374151] bg-white p-4 rounded-lg border border-gray-300">
+                    <div><strong class="text-brand-bright-blue">Day 1:</strong> Global publishes the new RG version (1st day of the month or earlier).</div>
+                    <div><strong class="text-brand-bright-blue">Day 2:</strong> Division publishes the Division's copy and the RG Change Management Log file.</div>
+                    <div><strong class="text-brand-dark-blue">Day 2 - 5:</strong> Destination teams check their lanes against the new version.</div>
+                    <div><strong class="text-brand-dark-blue">Change Required:</strong> Destination teams must use the RG Change Management Log file to populate all requested changes.</div>
+                    <div><strong class="text-red-600">Day 5:</strong> Global checks the submitted log file and incorporates changes into the next RG version.</div>
+                    <div><strong class="text-red-600">Urgent Rate Changes:</strong> Destination raises urgent issues via email to Division, who works with Global to fix and communicate directly to FFs/Shippers for immediate invoice correctness.</div>
+                </div>
+            </section>
+
+            <!-- SECTION 10: ESCALATION & EXCEPTION MANAGEMENT -->
+            <section id="section-10" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-bright-blue">
+                <h2 class="text-2xl font-bold brand-bright-blue mb-6 flex items-center"><span class="dot bg-brand-bright-blue"></span>10. Escalation Process: Rate Variances, SPOT, and Mode Changes</h2>
+                <p class="text-lg text-[#757575] mb-6">Deviations from the contracted RG rate require formal documentation and sign-off, primarily owned by the Destination team.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    
+                    <div class="p-4 border rounded-lg bg-gray-50 interactive-card">
+                        <h3 class="text-xl font-bold text-red-600 mb-2">Rate Variances (Invoice Audit)</h3>
+                        <p class="text-base text-[#757575]">If an FF invoice rate exceeds the RG CM Rate, the Shipper must immediately notify the Destination Owner. The Destination Owner will investigate and validate the charge with Global Transportation.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-gray-50 interactive-card">
+                        <h3 class="text-xl font-bold text-red-600 mb-2">SPOT Rate Requests</h3>
+                        <p class="text-base text-[#757575]">SPOT rates are approved <strong>only if stocks are needed or there are risks on inventory</strong>. The Origin requests the rate from the FF, but approval is managed through <strong>Local Logistics Managers and CS&L Directors</strong> at Destination before booking is confirmed.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-gray-50 interactive-card">
+                        <h3 class="text-xl font-bold text-red-600 mb-2">Ocean to Air Mode Change</h3>
+                        <p class="text-base text-[#757575]">Requires the highest level of approval. The Origin must propose, but the change must be fully validated and <strong>approved by the Destination Owner</strong>, often requiring Global Transportation sign-off due to cost implications.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 11: STANDARD OPERATING PROCEDURES (SOP) -->
+            <section id="section-11" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>11. SOP: New Freight Forwarder Onboarding</h2>
+                <p class="text-lg text-[#757575] mb-6">The onboarding of a new FF is driven by the Destination (Import) team, particularly for IT and data requirements, using the official checklists.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- DESTINATION/IMPORT CHECKLIST (OWNER) -->
+                    <div class="bg-brand-bright-blue/10 p-4 rounded-lg border-2 border-brand-bright-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-bright-blue mb-3">IMPORTER (Destination) Checklist Focus</h3>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Vendor Setup: Initiate new vendor setup with local CP Finance/CBS.</li>
+                            <li><span class="dot"></span>Credit Terms: Confirm 45-day credit terms with the FF as per the Global Contract.</li>
+                            <li><span class="dot"></span>Receiving SOP: Explain current DC receiving process and capacity SOP to the FF.</li>
+                            <li><span class="dot"></span>Track & Trace: Share detailed track & trace requirements and required reporting formats.</li>
+                            <li><span class="dot"></span>EDI/IT: Define required EDI linkages, formats (if non-TM9), and systems interfacing.</li>
+                        </ul>
+                    </div>
+
+                    <!-- ORIGIN/EXPORT CHECKLIST (OPERATOR) -->
+                    <div class="bg-brand-dark-blue/10 p-4 rounded-lg border-2 border-brand-dark-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">EXPORTER (Origin) Checklist Focus</h3>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>FF Vendor Setup: Assist with local vendor paperwork (tax ID, local registration).</li>
+                            <li><span class="dot"></span>Booking Process: Explain the current export booking process (the "As Is" process) to the FF.</li>
+                            <li><span class="dot"></span>Organigram Share: Provide the FF with the local company logistics organigram (contact persons).</li>
+                            <li><span class="dot"></span>FF Documentation: Ensure FF provides their updated local country contact list.</li>
+                            <li><span class="dot"></span>Documentation: Confirm all export documentation requirements with the new FF.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 12: MANAGEMENT OF CHANGE (MOC) AND FUNDING -->
+            <section id="section-12" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-bright-blue">
+                <h2 class="text-2xl font-bold brand-bright-blue mb-6 flex items-center"><span class="dot bg-brand-bright-blue"></span>12. RG Management, Change, and Funding the Growth</h2>
+                <p class="text-lg text-[#757575] mb-4">Ownership of change management ensures cost control and prevents recurrence of large financial deviations.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Change Request Process -->
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Requesting Changes on the Routing Guide</h3>
+                        <p class="text-base text-[#757575] mb-3">The Destination team manages all requests for changing RG parameters (rates, free time, FFs, etc.).</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Process: Destination teams populate all required changes using the <strong>APAC Request Log File</strong>.</li>
+                            <li><span class="dot"></span>Timing: Changes are submitted by the Destination team to Global/Division between <strong>Day 2 and Day 5</strong> of the publication cycle.</li>
+                            <li><span class="dot"></span>Content: Document the Detail from the Current RG and the Requested Change for every field impacted.</li>
+                            <li><span class="dot"></span>Accountability: Destination Owner is accountable for validation before implementation in the RG.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Financial Management -->
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Management of Ocean Freight Funding the Growth</h3>
+                        <p class="text-base text-[#757575] mb-3">Financial planning hinges on RG data and accurate volume forecasting, managed by the Destination team.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span><strong>Savings Calculation:</strong> Destination calculates savings by comparing the Cost of Sales budget against actual shipments dispatched (containers) and the Cost Model utilized.</li>
+                            <li><span class="dot"></span><strong>Savings Status Check:</strong> On a **quarterly basis**, Destination must check the status of their Funding the Growth Program and submit it to the Division for database update.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 13: AUTOMATED RG APPLICATION -->
+            <section id="section-13" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>13. Automated Routing Guide: Process and Application of New Lanes</h2>
+                <p class="text-lg text-[#757575] mb-6">The Automated RG is the primary hybrid SAP-powered portal for all rate requests, ensuring real-time data integrity and reducing manual errors.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Types of Requests -->
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 lg:col-span-1 interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Types of Requests</h3>
+                        <p class="text-base text-[#757575] mb-3">All requests must pass through the portal, categorized by intent and shipment volume:</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span><strong>FCL Long Term:</strong> Full container loads, moving ≥ 12 containers/year. Requires fixed price/guaranteed service.</li>
+                            <li><span class="dot"></span><strong>FCL Short Term (Spot):</strong> Full container loads, moving 1 to 11 containers/year. Typically requested for two months.</li>
+                            <li><span class="dot"></span><strong>FCL Study Lane:</strong> Movements in study, not yet finalized, managed by network operations/procurement for potential future lanes.</li>
+                            <li><span class="dot"></span>LCL & Air Shipments: Not currently managed by the Global Transportation Automated RG.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Roles and Timing -->
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 lg:col-span-2 interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Rate Request Process Flow & Timeline (New Lane/Rate)</h3>
+                        
+                        <!-- Flowchart Start -->
+                        <div class="process-container-aligned md:flex-row md:justify-around w-full">
+                            
+                            <!-- Step 1: Requester -->
+                            <div class="process-column">
+                                <div class="step-box-fixed bg-brand-bright-blue/20 w-full">
+                                    <strong class="text-base">1. CP Requester (Logistics Manager)</strong>
+                                </div>
+                                <div class="process-arrow">↓</div>
+                                <p class="process-result text-red-600">Action: Creates Request in SAP Portal</p>
+                            </div>
+                            
+                            <!-- Step 2: FF -->
+                            <div class="process-column">
+                                <div class="step-box-fixed bg-white border border-brand-dark-blue w-full">
+                                    <strong class="text-base">2. Freight Forwarder (e.g., Dimerco)</strong>
+                                </div>
+                                <div class="process-arrow">↓</div>
+                                <p class="process-result text-red-600">Action: Provides Rates in Portal (1-2 days)</p>
+                            </div>
+                            
+                            <!-- Step 3: Global -->
+                            <div class="process-column">
+                                <div id="global-logistics-step" class="step-box-fixed w-full">
+                                    <strong class="text-base">3. Global Logistics (Owner)</strong>
+                                </div>
+                                <div class="process-arrow">↓</div>
+                                <p class="process-result text-red-600">Action: Validates, Approves, and Publishes Rate</p>
+                            </div>
+                            
+                            <!-- Step 4: Effective -->
+                            <div class="process-column">
+                                <div id="rate-effective-step" class="step-box-fixed bg-white w-full border border-green-600">
+                                    <strong class="text-base">4. Rate Effective</strong>
+                                </div>
+                                <p class="process-result text-red-600">Result: New Lane/Rate is Live in RG</p>
+                            </div>
+                        </div>
+                        <!-- Flowchart End -->
+                        
+                        <h4 class="text-lg font-bold brand-dark-blue mt-6 mb-2">Step-by-Step System Usage (Requester)</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-base text-[#374151] pl-4">
+                            <li><strong>Access the Portal:</strong> Obtain access via a CARS request on Our-Colgate, adding the role <strong>G:ZZ:RGA:REQUESTER</strong> in SAP/TRP.</li>
+                            <li><strong>Basic Information Setup:</strong> Ensure required data (Ports, Unlocodes) is available in the system before creating the request.</li>
+                            <li><strong>Create Rate Request:</strong> Select the correct purpose type (Long Term, Short Term/Spot, or Study Lane).</li>
+                            <li><strong>Enter Lane Details:</strong> Populate all necessary fields including Origin, Destination, Equipment Type (e.g., 40HC), and the <strong>Annual Volume (Container)</strong> for the lane.</li>
+                            <li><strong>Submission:</strong> Submit the request to trigger the FF notification for pricing. The status changes to 'In Process (FF)'.</li>
+                            <li><strong>Monitoring:</strong> Track the request status in your worklist and check for Final Approval by Global Logistics.</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Status Codes and Summary -->
+                <div class="mt-8 p-4 bg-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold brand-dark-blue mb-3">RG Request Status Codes (Summary)</h3>
+                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-base">
+                        <div class="bg-white p-2 rounded-lg"><strong class="text-brand-dark-blue">Draft:</strong> Request created but not yet submitted.</div>
+                        <div class="bg-white p-2 rounded-lg"><strong class="text-brand-bright-blue">In Process (FF):</strong> FF is currently providing the required rate.</div>
+                        <div class="bg-white p-2 rounded-lg"><strong class="text-green-600">Approved:</strong> Rate has been validated by Global and is set to be published.</div>
+                        <div class="bg-white p-2 rounded-lg"><strong class="text-red-600">Rejected:</strong> Request not approved (e.g., incomplete data, non-standard request).</div>
+                    </div>
+                </div>
+
+                <!-- Global Manual Link -->
+                <div class="mt-6 text-center">
+                    <p class="text-lg text-[#757575]">For more details on the Automated RG, please check the <a href="https://docs.google.com/document/d/1kRZqtNE2cJ55yvFARyRl3CwIdXMogZ3vG1XlelnB6Yo/edit?tab=t.0" class="text-brand-bright-blue hover:underline font-semibold">Global Manual</a>.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 14: HUB GUIDANCE: REVIEWING OCEAN FREIGHT BID RESPONSES -->
+            <section id="section-14" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>14. Hub Guidance: Reviewing Ocean Freight Bid Responses</h2>
+                <p class="text-lg text-[#757575] mb-6">Hubs will receive a recommended award overview from the tender file, which will likely be based on cost alone. The following checklist is crucial for a comprehensive review before making a final award decision.</p>
+
+                <div class="bg-gray-100 rounded-lg shadow-inner p-6 md:p-8">
+                    <h3 class="text-2xl font-bold brand-bright-blue mb-5 text-center">Key Checks Before Finalizing Awards</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        <!-- Check 1: Verify Cost Model Columns -->
+                        <div class="bid-check-card border-b-4 border-red-500 interactive-card">
+                            <p class="bid-check-icon mb-2 text-red-500">🏷️</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Verify Cost Model Columns</h4>
+                            <p class="text-sm text-gray-600">Ensure costs are present in the correct columns according to your model (e.g., the "export haulage" column has costs for a DP cost model).</p>
+                        </div>
+
+                        <!-- Check 2: Check for Blank Columns -->
+                        <div class="bid-check-card border-b-4 border-yellow-500 interactive-card">
+                            <p class="bid-check-icon mb-2 text-yellow-500">🚫</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Check for Blank Columns</h4>
+                            <p class="text-sm text-gray-600">Randomly check that columns are not left blank. A "zero" value indicates a deliberate bid, whereas an empty cell could be an oversight.</p>
+                        </div>
+
+                        <!-- Check 3: Consolidate Freight Forwarders -->
+                        <div class="bid-check-card border-b-4 border-brand-dark-blue interactive-card">
+                            <p class="bid-check-icon mb-2 brand-dark-blue">🚢</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Consolidate FFs per Route</h4>
+                            <p class="text-sm text-gray-600">Avoid awarding different container types on the same route to different forwarders (e.g., 20GP to FF A and 40GP to FF B). Aim for one forwarder per route.</p>
+                        </div>
+
+                        <!-- Check 4: Confirm CM and Incoterm -->
+                        <div class="bid-check-card border-b-4 border-brand-bright-blue interactive-card">
+                            <p class="bid-check-icon mb-2 brand-bright-blue">⚖️</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Confirm CM and Incoterm</h4>
+                            <p class="text-sm text-gray-600">Do the awarded cost model and incoterm meet your requirements as specified in the current Routing Guide?</p>
+                        </div>
+
+                        <!-- Check 5: Validate D2D Costs -->
+                        <div class="bid-check-card border-b-4 border-green-500 interactive-card">
+                            <p class="bid-check-icon mb-2 text-green-500">💰</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Validate D2D Costs</h4>
+                            <p class="text-sm text-gray-600">The Door-to-Door (D2D) cost per container must be at least the same as the sum of the individual CM costs per container. If not, there is a calculation error.</p>
+                        </div>
+
+                        <!-- Check 6: Review Free Time -->
+                        <div class="bid-check-card border-b-4 border-red-500 interactive-card">
+                            <p class="bid-check-icon mb-2 text-red-500">⏱️</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Review Free Time</h4>
+                            <p class="text-sm text-gray-600">Are the offered detention and demurrage free times the same as or better than your current practice?</p>
+                        </div>
+                        
+                        <!-- Check 7: Check Transit Time and Routing -->
+                        <div class="bid-check-card border-b-4 border-yellow-500 interactive-card">
+                            <p class="bid-check-icon mb-2 text-yellow-500">🧭</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Check Transit/Routing</h4>
+                            <p class="text-sm text-gray-600">Are the proposed transit times and routing aligned with your current operational requirements?</p>
+                        </div>
+
+                        <!-- Check 8: Verify Ports -->
+                        <div class="bid-check-card border-b-4 border-brand-dark-blue interactive-card">
+                            <p class="bid-check-icon mb-2 brand-dark-blue">📍</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Verify Ports</h4>
+                            <p class="text-sm text-gray-600">Confirm that the specified ports of origin and destination (UNLOCODE) are correct for the lanes you requested.</p>
+                        </div>
+
+                        <!-- Check 9: Check for Missing Lanes -->
+                        <div class="bid-check-card border-b-4 border-brand-bright-blue interactive-card">
+                            <p class="bid-check-icon mb-2 brand-bright-blue">❓</p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Check for Missing Lanes</h4>
+                            <p class="text-sm text-gray-600">Verify that you are not missing any lanes versus what you requested in your 2026 volume data gathering file.</p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            
+        </section>
+
+        <!-- ============================================== -->
+        <!-- START OF PART IV - SPOTTING OPPORTUNITIES -->
+        <!-- ============================================== -->
+        <section id="part-iv" class="container mx-auto p-4 md:p-8">
+            
+            <div class="container mx-auto text-center part-header">
+                <h1 class="text-3xl md:text-4xl font-bold">Part IV - Spotting Opportunities</h1>
+                <p class="text-lg mt-2 opacity-90">Proactive strategies for cost reduction and operational excellence.</p>
+            </div>
+
+            <!-- 15. BENCHMARKING AND MARKET INSIGHTS -->
+            <section id="section-15" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>15. External Benchmarking and Market Insights</h2>
+                <p class="text-lg text-[#757575] mb-6">Utilizing external data platforms is essential for validating the competitiveness of your contracted rates and identifying savings potential.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Xeneta Usage -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-dark-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Usage of Xeneta for Rate Validation</h3>
+                        <p class="text-base text-[#757575] mb-3">Xeneta provides global market pulse data, allowing managers to compare CP's contracted CM rates against live market standards.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Objective: Validate if current RG rates are within competitive market range (short-term and long-term).</li>
+                            <li><span class="dot"></span>Action: If the RG rate is significantly above the market high, raise the issue via the APAC Request Log for renegotiation/review.</li>
+                            <li><span class="dot"></span>Benefit: Ensures cost of sales remains competitive and prevents overpaying on ocean freight.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Comparing Rates -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-bright-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-bright-blue mb-3">RG Comparison Points</h3>
+                        <p class="text-base text-[#757575] mb-3">Always check the D2D benchmark rates (RG Column AJ) to evaluate the efficiency of local haulage costs.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>CM Rate (AI): The contracted rate paid to the FF for the defined scope.</li>
+                            <li><span class="dot"></span>D2D Rate (AJ): The hypothetical cost if the FF handled the full door-to-door service.</li>
+                            <li><span class="dot"></span>Opportunity: If the combined CM + Local Haulage cost exceeds the D2D rate, it signals inefficiency in local haulage that requires optimization.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 16. UTILIZATION AND SHIPMENT OPTIMIZATION -->
+            <section id="section-16" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-bright-blue">
+                <h2 class="text-2xl font-bold brand-bright-blue mb-6 flex items-center"><span class="dot bg-brand-bright-blue"></span>16. Container and Shipment Utilization</h2>
+                <p class="text-lg text-[#757575] mb-6">Driving utilization directly reduces the number of containers dispatched, providing immediate cost reduction (since freight is container-based).</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Container Utilization -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-bright-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Maximizing Container Utilization</h3>
+                        <p class="text-base text-[#757575] mb-3">The less container space wasted, the greater the savings. Focus on maximizing weight or cube.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Principle: Lesser containers dispatched = Lesser cost. (Direct correlation with annual volume and spend).</li>
+                            <li><span class="dot"></span>Action: Work with <strong>Production Teams</strong> to ensure packaging configuration and loading sequence maximize container capacity close to the maximum Gross Weight (RG Col CH).</li>
+                            <li><span class="dot"></span>Reporting: Monitor the Container Utilization Report (KPI 3.2) to track performance.</li>
+                        </ul>
+                    </div>
+
+                    <!-- BL Utilization -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-dark-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Optimizing Containers Per Shipment (BL)</h3>
+                        <p class="text-base text-[#757575] mb-3">Consolidating multiple smaller orders into a single, larger shipment reduces fixed documentation and handling costs.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Alignment: Align with <strong>Planning Teams</strong> on stock prioritization to build full vessel loads.</li>
+                            <li><span class="dot"></span>Coordination: Align with <strong>Freight Forwarders</strong> (shipment departure) and <strong>Production Teams</strong> (stock availability) to meet optimized cut-offs.</li>
+                            <li><span class="dot"></span>Metric: Aim to increase the average number of containers per Bill of Lading (BL) dispatched on key lanes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 17. FREE TIME OPTIMIZATION AND ALIGNMENT -->
+            <section id="section-17" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-dark-blue">
+                <h2 class="text-2xl font-bold brand-dark-blue mb-6 flex items-center"><span class="dot bg-brand-dark-blue"></span>17. Free Time Optimization and Process Alignment</h2>
+                <p class="text-lg text-[#757575] mb-6">Free time is a cost-lever. Optimization must be aligned with Inventory Models to translate operational efficiency into financial benefits.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Process Optimization -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-dark-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-dark-blue mb-3">Optimize Local Processes for Free Time Use</h3>
+                        <p class="text-base text-[#757575] mb-3">Ensure local operational processes (customs, receiving, dispatch) are faster than the contracted free time.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Destination Focus: Accelerate customs clearance and warehouse receiving processes.</li>
+                            <li><span class="dot"></span>Origin Focus: Optimize export clearance and dispatching lead times.</li>
+                            <li><span class="dot"></span>Inventory Alignment: Ensure the optimized lead times are incorporated into the <strong>Planning Inventory Models</strong>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Free Time Reduction -->
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-brand-bright-blue interactive-card">
+                        <h3 class="text-xl font-bold brand-bright-blue mb-3">Reducing Free Time = Better Rates</h3>
+                        <p class="text-base text-[#757575] mb-3">As operational processes become robust, reduce the requested free time to leverage better ocean freight quotations.</p>
+                        <ul class="list-none space-y-2 text-base text-[#374151]">
+                            <li><span class="dot"></span>Principle: Free time is a <strong>negotiated service cost</strong>. Longer free times increase the carrier's risk/cost (container idle time), which is passed to CP.</li>
+                            <li><span class="dot"></span>Action: Once operations are consistently optimized, formally request a reduction in free time via the MOC process (<a href="#section-12" class="text-blue-600 hover:underline">Section 12</a>) to demand lower FF costs.</li>
+                            <li><span class="dot"></span>Benefit: Translates operational improvements directly into reduced <strong>Ocean Freight Quotations</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 18. PORT TO WAREHOUSE LEADTIME REDUCTION -->
+            <section id="section-18" class="mb-12 bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-brand-bright-blue">
+                <h2 class="text-2xl font-bold brand-bright-blue mb-6 flex items-center"><span class="dot bg-brand-bright-blue"></span>18. Port to Warehouse Leadtime Reduction</h2>
+                
+                <div class="container mx-auto p-4 md:p-8">
+                    
+                    <header class="text-center mb-12">
+                        <h1 class="text-4xl md:text-6xl font-black text-[#005f73] uppercase tracking-wider">LOGISTICS EFFICIENCY ACHIEVED</h1>
+                        <p class="text-lg md:text-xl text-[#0a9396] mt-2">Philippines Port-to-Warehouse Lead Time Reduced from 5 Days to 3 Days</p>
+                    </header>
+
+                    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                        <!-- KPI Summary Bar -->
+                        <section class="lg:col-span-3 bg-[#0a9396] text-white rounded-2xl shadow-xl p-6 md:p-8 flex justify-around items-center text-center">
+                            <div>
+                                <h2 class="text-2xl font-bold mb-2">Initial Time</h2>
+                                <p class="text-6xl font-black text-[#ee9b00]">5</p>
+                                <p class="text-xl">DAYS</p>
+                            </div>
+                            <div class="text-4xl font-black">→</div>
+                            <div>
+                                <h2 class="text-2xl font-bold mb-2">Reduction</h2>
+                                <p class="text-6xl font-black text-[#94d2bd]">2</p>
+                                <p class="text-xl">DAYS</p>
+                            </div>
+                            <div class="text-4xl font-black">→</div>
+                              <div>
+                                <h2 class="text-2xl font-bold mb-2">Final Time</h2>
+                                <p class="text-6xl font-black text-white">3</p>
+                                <p class="text-xl">DAYS</p>
+                            </div>
+                        </section>
+                        <!-- END KPI Summary Bar -->
+
+                        <!-- AS-IS Process Section - Simplified -->
+                        <section class="lg:col-span-3 bg-gray-50 rounded-2xl shadow-lg p-6 md:p-8">
+                            <h2 class="text-3xl font-bold text-[#005f73] text-center mb-6">AS-IS PROCESS: THE 5-DAY CHALLENGE</h2>
+                            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The original logistics flow was sequential and prone to delays from internal approvals and manual cash payments. Each day represented a critical, single-point failure.</p>
+                            <div class="flex flex-col md:flex-row justify-between text-center max-w-6xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
+                                <div class="flex-1 flex flex-col items-center p-3 border border-gray-200 rounded-lg bg-white shadow-md">
+                                    <div class="w-16 h-16 rounded-full bg-[#ae2012] flex items-center justify-center text-2xl font-bold text-white mb-2">D1</div>
+                                    <p class="font-bold text-md text-gray-800">Docs & Finance</p>
+                                    <p class="text-gray-500 text-sm">Approvals & Document Receipt</p>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center p-3 border border-gray-200 rounded-lg bg-white shadow-md">
+                                    <div class="w-16 h-16 rounded-full bg-[#bb3e03] flex items-center justify-center text-2xl font-bold text-white mb-2">D2-3</div>
+                                    <p class="font-bold text-md text-gray-800">Charges & DO Wait</p>
+                                    <p class="text-gray-500 text-sm">Late Fees & Cash Settlements</p>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center p-3 border border-gray-200 rounded-lg bg-white shadow-md">
+                                    <div class="w-16 h-16 rounded-full bg-[#ca6702] flex items-center justify-center text-2xl font-bold text-white mb-2">D4</div>
+                                    <p class="font-bold text-md text-gray-800">Customs & Port</p>
+                                    <p class="text-gray-500 text-sm">BOC Lodgement & Gate Pass</p>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center p-3 border border-gray-200 rounded-lg bg-white shadow-md">
+                                    <div class="w-16 h-16 rounded-full bg-[#ee9b00] flex items-center justify-center text-2xl font-bold text-black mb-2">D5</div>
+                                    <p class="font-bold text-md text-gray-800">Delivery</p>
+                                    <p class="text-gray-500 text-sm">Container Pull Out & WH Delivery</p>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- END AS-IS Process Section -->
+                        
+                        <!-- 4 KEY BOTTLENECKS SECTION - Re-added -->
+                        <section class="lg:col-span-3 bg-gray-50 rounded-2xl shadow-lg p-6 md:p-8">
+                             <h2 class="text-3xl font-bold text-[#ae2012] text-center mb-6">4 KEY BOTTLENECKS IDENTIFIED</h2>
+                             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">These four operational friction points were responsible for the majority of the delays, adding valuable days to the overall lead time.</p>
+                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                 <div class="blocker-card">
+                                     <span class="text-4xl text-[#ae2012] mb-2">⏳</span>
+                                     <h3 class="text-lg font-bold text-gray-800 mt-2 mb-1">Slow D/T Approval</h3>
+                                     <p class="text-gray-600 text-sm">Formal, internal finance approval for tax computation caused unnecessary lag.</p>
+                                 </div>
+                                 <div class="blocker-card">
+                                     <span class="text-4xl text-[#bb3e03] mb-2">📑</span>
+                                     <h3 class="text-lg font-bold text-gray-800 mt-2 mb-1">Late Documents</h3>
+                                     <p class="text-gray-600 text-sm">Source plants provided essential shipping documents too late in the process.</p>
+                                 </div>
+                                 <div class="blocker-card">
+                                     <span class="text-4xl text-[#ca6702] mb-2">💸</span>
+                                     <h3 class="text-lg font-bold text-gray-800 mt-2 mb-1">Manual Cash Settlement</h3>
+                                     <p class="text-gray-600 text-sm">Manual cash payments for carrier charges added 1-2 days waiting time.</p>
+                                 </div>
+                                 <div class="blocker-card">
+                                     <span class="text-4xl text-[#ee9b00] mb-2">🛑</span>
+                                     <h3 class="text-lg font-bold text-gray-800 mt-2 mb-1">Late Endorsements</h3>
+                                     <p class="text-gray-600 text-sm">Strict cut-off times (3 PM) for brokers delayed delivery orders to the next day.</p>
+                                 </div>
+                             </div>
+                        </section>
+                        <!-- END 4 KEY BOTTLENECKS SECTION -->
+                        
+                        <!-- THE SOLUTION: PROACTIVE FRONT-LOADING - New Infographic Style -->
+                        <section class="lg:col-span-3 bg-gray-50 rounded-2xl shadow-lg p-6 md:p-8">
+                             <h2 class="text-3xl font-bold text-[#005f73] text-center mb-6">4 KEY SOLUTIONS: PROACTIVE FRONT-LOADING</h2>
+                             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The strategy was to shift all documentation, payments, and endorsements to the "Over Water" stage, transforming the process from sequential to parallel by addressing the stakeholder delays directly.</p>
+                             
+                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                 <div class="solution-grid-item">
+                                     <div class="text-3xl text-[#0a9396] mb-2">🗂️</div>
+                                     <h3 class="text-lg font-bold text-gray-800 mb-1">CP Export</h3>
+                                     <p class="text-gray-600 font-medium">Mandate complete documents <span class="text-[#005f73] font-bold">2 days prior</span> to vessel arrival.</p>
+                                 </div>
+                                 <div class="solution-grid-item">
+                                     <div class="text-3xl text-[#0a9396] mb-2">📧</div>
+                                     <h3 class="text-lg font-bold text-gray-800 mb-1">CP Finance</h3>
+                                     <p class="text-gray-600 font-medium">Formal approval **eliminated**. Tax computation is now <span class="text-[#005f73] font-bold">email notification only</span>.</p>
+                                 </div>
+                                 <div class="solution-grid-item">
+                                     <div class="text-3xl text-[#0a9396] mb-2">💳</div>
+                                     <h3 class="text-lg font-bold text-gray-800 mb-1">Freight Forwarder</h3>
+                                     <p class="text-gray-600 font-medium">Leverages **credit line** to bypass cash settlement delays and provides charges 48hrs in advance.</p>
+                                 </div>
+                                 <div class="solution-grid-item">
+                                     <div class="text-3xl text-[#0a9396] mb-2">⏱️</div>
+                                     <h3 class="text-lg font-bold text-gray-800 mb-1">Brokers</h3>
+                                     <p class="text-gray-600 font-medium">Must complete all settlement and documentation <span class="text-[#005f73] font-bold">within 24 hours</span> of advance notice.</p>
+                                 </div>
+                             </div>
+                        </section>
+                        <!-- END THE SOLUTION: PROACTIVE FRONT-LOADING -->
+                        
+                        <!-- TO-BE PROCESS: THE 3-DAY STREAMLINE - New Infographic Style -->
+                        <section class="lg:col-span-3 bg-gray-50 rounded-2xl shadow-lg p-6 md:p-8">
+                             <h2 class="text-3xl font-bold text-[#005f73] text-center mb-6">TO-BE PROCESS: THE 3-DAY STREAMLINE</h2>
+                             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The new timeline focuses the port activities into a single day, enabling pull-out and delivery in the remaining two days.</p>
+                             <div class="max-w-3xl mx-auto">
+                                 <div class="flow-step">
+                                     <div class="flow-icon w-12 h-12 rounded-full bg-[#005f73] flex items-center justify-center text-2xl font-bold text-white mr-6">0</div>
+                                     <div>
+                                         <h3 class="text-xl font-bold text-gray-800">Pre-Arrival (Over Water)</h3>
+                                         <p class="text-gray-600">All prerequisites **complete**: Delivery Order (DO), arrival notice, and advance payment via credit line.</p>
+                                     </div>
+                                 </div>
+                                 <div class="flow-step">
+                                      <div class="flow-icon w-12 h-12 rounded-full bg-[#0a9396] flex items-center justify-center text-2xl font-bold text-white mr-6">1</div>
+                                     <div>
+                                         <h3 class="text-xl font-bold text-gray-800">Vessel Berthing & Clearance</h3>
+                                         <p class="text-gray-600">Brokers finalize all customs clearance, BOC lodgement, port charge payment, and gate pass generation.</p>
+                                     </div>
+                                 </div>
+                                  <div class="flow-step">
+                                       <div class="flow-icon w-12 h-12 rounded-full bg-[#94d2bd] flex items-center justify-center text-2xl font-bold text-gray-800 mr-6">2-3</div>
+                                     <div>
+                                         <h3 class="text-xl font-bold text-gray-800">Pull Out & Delivery</h3>
+                                         <p class="text-gray-600">Container pull out from port and final delivery to the warehouse is executed.</p>
+                                     </div>
+                                 </div>
+                             </div>
+                        </section>
+                        <!-- END TO-BE PROCESS -->
+
+                    </main>
+                </div>
+                
+            </section>
+            
+        </section>
+
+
+    <footer class="bg-brand-dark-blue text-white text-center p-4 mt-8">
+        <p>&copy; Colgate-Palmolive Company. Internal Training Material.</p>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a id="back-to-top" href="#toc-main" onclick="smoothScroll(event)" class="hover:no-underline">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.56l-3.22 3.22a.75.75 0 11-1.06-1.06l4.5-4.5a.75.75 0 011.06 0l4.5 4.5a.75.75 0 11-1.06 1.06L10.75 5.56v10.69c0 .414-.336.75-.75.75z" clip-rule="evenodd" />
+        </svg>
+        TOC
+    </a>
+
+    <script>
+        // Removed: CHART.JS SETUP for Incoterms chart
+        
+        function smoothScroll(e) {
+            e.preventDefault();
+            const targetId = e.currentTarget.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        window.onload = function() {
+            // Removed: Chart initialization code. The chart context setup is no longer needed.
+            
+            // Add smooth scrolling behavior to all TOC links
+            document.querySelectorAll('#toc-list a').forEach(anchor => {
+                anchor.addEventListener('click', smoothScroll);
+            });
+            
+            // Show/Hide Back to Top button based on scroll position
+            const backToTopButton = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopButton.style.display = 'flex';
+                    backToTopButton.style.alignItems = 'center';
+                } else {
+                    backToTopButton.style.display = 'none';
+                }
+            });
+            // Initial hide
+            backToTopButton.style.display = 'none';
+
+        };
+    </script>
+</body>
+</html>
